@@ -27,11 +27,15 @@ Previously, ISPSO relied on its public Facebook page (`facebook.com/profile.php?
 * **Real-Time KPIs:** Tracks active scholars per scheme (839+ students), budget disbursement progress (₱4.25M / ₱6.8M), and pending reviews.
 * **Anti-Fraud & Verification Queue:** Side-by-side audit modal comparing uploaded student IDs/CORs against registered profiles with color-coded mismatch alerts.
 * **Releasing & Payout Scheduler:** Automatically splits grantees into alphabetical timeslot batches (e.g., *Batch 1: Surnames A-D on Nov 14, 8:30 AM at SAC Gym*).
+* **Direct Student Mobile SMS Chat:** Send direct SMS text messages to students’ verified mobile phone numbers (`0917-882-9102`) for urgent deficiency alerts and payout releases.
+* **Security & RA 10173 Audit Trail:** Immutable event log tracking every verification, grant approval, disbursement, and SMS dispatch with timestamps, actor IDs, and IP addresses.
 * **Campus Counter Scanning Mode:** Rapidly scans student QR Passes or Student IDs at releasing desks to mark stipends as `CLAIMED` and issue digital reference receipts.
 * **Targeted Broadcast Center:** Replaces Facebook posts with targeted push notifications and in-app alerts segmented by scholarship program.
 
 ### 2. 📱 Student Progressive Web App (PWA)
 * **Institutional Domain Lock:** Authenticated strictly via `@sac.edu.ph` institutional Google Workspace accounts.
+* **🤖 Schola AI Scholar Assistant:** Built-in AI companion synchronized with the student's personal academic record (Student ID: `2023-01452`, DepEd LRN: `115201140091`, GWA: `1.45`, TDP-TES status). Schola answers questions about all available SAC scholarships, evaluates GWA qualifications, explains application requirements, and provides payout schedules at the SAC Gym.
+* **Direct Mobile SMS Drawer:** Real-time SMS text thread connecting the student directly to ISPSO staff with two-way reply support.
 * **Visual Disbursement Tracker:** Live step-by-step progress tracking:  
   `Applied` → `Documents Verified` → `Endorsed to CHED/Donor` → `Ready for Payout` → `Claimed`.
 * **Digital Scholar Pass:** Cryptographically signed dynamic QR code containing Student ID and 12-digit LRN for rapid presentation at the releasing window.

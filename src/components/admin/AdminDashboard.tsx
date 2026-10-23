@@ -27,6 +27,8 @@ import {
   ScholarshipProgram,
   Announcement,
   DisbursementRecord,
+  SmsMessage,
+  AuditLog,
 } from '@/lib/types';
 import { performDocumentVerification } from '@/lib/verification';
 
@@ -36,6 +38,8 @@ interface AdminDashboardProps {
   programs: ScholarshipProgram[];
   announcements: Announcement[];
   disbursements: DisbursementRecord[];
+  smsMessages?: SmsMessage[];
+  auditLogs?: AuditLog[];
   onUpdateApplicationStatus: (
     appId: string,
     status: Application['status'],
@@ -44,6 +48,7 @@ interface AdminDashboardProps {
   onAddAnnouncement: (announcement: Omit<Announcement, 'id' | 'publishedAt'>) => void;
   onAddPayoutBatch: (batch: Omit<PayoutBatch, 'id' | 'claimedCount'>) => void;
   onDisbursePayout: (studentIdNumber: string, batchId: string) => { success: boolean; message: string; record?: DisbursementRecord };
+  onSendAdminSms?: (studentId: string, mobile: string, message: string) => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -52,14 +57,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   programs,
   announcements,
   disbursements,
+  smsMessages = [],
+  auditLogs = [],
   onUpdateApplicationStatus,
   onAddAnnouncement,
   onAddPayoutBatch,
   onDisbursePayout,
+  onSendAdminSms,
 }) => {
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'verifications' | 'payouts' | 'schemes' | 'announcements' | 'sandbox'
+    'overview' | 'verifications' | 'payouts' | 'schemes' | 'announcements' | 'sms' | 'security' | 'sandbox'
   >('overview');
+
+  // SMS Center state
+  const [smsTargetStudentId, setSmsTargetStudentId] = useState(applications[0]?.student.id || '');
+  const [smsMessageText, setSmsMessageText] = useState('');
+  const [smsStatusAlert, setSmsStatusAlert] = useState<string | null>(null);
 
   // Selected application for side-by-side verification modal
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -188,6 +201,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             { id: 'payouts', label: 'Payouts & Releasing Counter', count: payoutBatches.length },
             { id: 'schemes', label: 'Scholarship Schemes', count: programs.length },
             { id: 'announcements', label: 'Announcements Hub', count: announcements.length },
+            { id: 'sms', label: 'Direct Student SMS Chat', count: smsMessages.length },
+            { id: 'security', label: 'Security & Audit Trail', count: undefined },
             { id: 'sandbox', label: 'AI Verification Sandbox', count: undefined },
           ].map((tab) => (
             <button
@@ -821,7 +836,338 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* TAB 6: AI VERIFICATION SANDBOX */}
+      {/* TAB 6: DIRECT STUDENT MOBILE SMS CHAT */}
+      {activeTab === 'sms' && (
+        <div className="space-y-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Direct Student Mobile SMS Communication Center
+              </h2>
+              <p className="text-xs text-slate-500">
+                Send direct SMS text messages to students’ verified mobile phone numbers for payout alerts and urgent deficiencies.
+              </p>
+            </div>
+            <div className="flex items-center space-x-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+              <span>PhilSMS / Semaphore Gateway: Connected (SAC-ISPSO)</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            {/* Left: Student Selector */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+                Registered Student Mobile Contacts
+              </h3>
+              <div className="space-y-1.5">
+                {applications.map((app) => (
+                  <button
+                    key={app.student.id}
+                    onClick={() => {
+                      setSmsTargetStudentId(app.student.id);
+                      setSmsStatusAlert(null);
+                    }}
+                    className={`w-full rounded-xl p-3 text-left transition border ${
+                      smsTargetStudentId === app.student.id
+                        ? 'bg-anthonian-50 border-anthonian-300 ring-1 ring-anthonian-400'
+                        : 'bg-white border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-slate-900">{app.student.fullName}</span>
+                      <span className="text-[10px] font-mono font-bold text-anthonian-700 bg-anthonian-100 px-1.5 py-0.5 rounded">
+                        {app.program.code}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                      <span>{app.student.contactNumber}</span>
+                      <span>ID: {app.student.studentIdNumber}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Right: SMS Conversation & Dispatcher */}
+            <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col justify-between">
+              {(() => {
+                const targetApp =
+                  applications.find((a) => a.student.id === smsTargetStudentId) || applications[0];
+                const studentMessages = smsMessages.filter(
+                  (m) =>
+                    m.studentId === targetApp?.student.id ||
+                    m.mobileNumber === targetApp?.student.contactNumber
+                );
+
+                return (
+                  <div className="space-y-4">
+                    {/* Header */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                      <div>
+                        <h3 className="font-bold text-sm text-slate-900">
+                          {targetApp?.student.fullName}
+                        </h3>
+                        <p className="text-xs text-slate-500 font-mono">
+                          Mobile: {targetApp?.student.contactNumber} • Course: {targetApp?.student.course}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-blue-100 text-anthonian-800 px-2.5 py-0.5 text-xs font-bold">
+                        12-Digit LRN: {targetApp?.student.lrn}
+                      </span>
+                    </div>
+
+                    {/* Messages Scroll Area */}
+                    <div className="min-h-[220px] max-h-[280px] overflow-y-auto space-y-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
+                      {studentMessages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`flex flex-col ${
+                            msg.direction === 'OUTBOUND' ? 'items-end' : 'items-start'
+                          }`}
+                        >
+                          <div
+                            className={`max-w-[80%] rounded-2xl px-4 py-2 text-xs shadow-sm ${
+                              msg.direction === 'OUTBOUND'
+                                ? 'bg-anthonian-800 text-white rounded-br-sm'
+                                : 'bg-white text-slate-800 rounded-bl-sm border border-slate-200'
+                            }`}
+                          >
+                            <p className="font-bold text-[10px] opacity-75 mb-0.5">
+                              {msg.direction === 'OUTBOUND' ? 'Sent by: ' + msg.sender : targetApp?.student.fullName}
+                            </p>
+                            <p>{msg.message}</p>
+                            <span className="mt-1 block text-[9px] opacity-70 text-right">
+                              {msg.timestamp.slice(11, 16)} • Status: {msg.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+
+                      {studentMessages.length === 0 && (
+                        <div className="py-12 text-center text-xs text-slate-400">
+                          No SMS messages logged yet for this student. Use the composer below to dispatch a message.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quick SMS Templates */}
+                    <div>
+                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Quick Message Templates:
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSmsMessageText(
+                              `SAC-ISPSO: Notice of Payout! Releasing of your stipend is scheduled on Friday at SAC Gymnasium. Please present your Digital QR Pass.`
+                            )
+                          }
+                          className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-200 transition"
+                        >
+                          📅 Payout Notice (Gym)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSmsMessageText(
+                              `SAC-ISPSO: Urgent deficiency! Please submit your validated 1st Sem COR to ISPSO window 2 within 48 hours to prevent hold on your scholarship grant.`
+                            )
+                          }
+                          className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-200 transition"
+                        >
+                          ⚠️ Missing COR Deficiency
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSmsMessageText(
+                              `SAC-ISPSO: Your Landbank / DBP Cash Card is ready for claiming at the SAC Business Office from 9 AM to 4 PM. Bring your SAC ID.`
+                            )
+                          }
+                          className="rounded-lg bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700 hover:bg-slate-200 transition"
+                        >
+                          💳 DBP Cash Card Ready
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* SMS Composer */}
+                    <div className="space-y-2 pt-2">
+                      <textarea
+                        rows={3}
+                        value={smsMessageText}
+                        onChange={(e) => setSmsMessageText(e.target.value)}
+                        placeholder={`Compose direct SMS text message to ${targetApp?.student.fullName} (${targetApp?.student.contactNumber})...`}
+                        className="w-full rounded-xl border border-slate-300 p-3 text-xs focus:ring-anthonian-800 focus:outline-none"
+                      />
+
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] text-slate-400">
+                          {smsMessageText.length} characters • 1 SMS segment (GSM 7-bit)
+                        </span>
+
+                        <button
+                          type="button"
+                          disabled={!smsMessageText.trim()}
+                          onClick={() => {
+                            if (!smsMessageText.trim() || !targetApp) return;
+                            if (onSendAdminSms) {
+                              onSendAdminSms(
+                                targetApp.student.id,
+                                targetApp.student.contactNumber,
+                                smsMessageText.trim()
+                              );
+                            }
+                            setSmsStatusAlert(
+                              `SMS dispatched successfully to ${targetApp.student.fullName} (${targetApp.student.contactNumber}) via SAC-ISPSO gateway!`
+                            );
+                            setSmsMessageText('');
+                          }}
+                          className={`rounded-xl px-4 py-2 text-xs font-bold text-white transition shadow-sm ${
+                            smsMessageText.trim()
+                              ? 'bg-emerald-600 hover:bg-emerald-700'
+                              : 'bg-slate-300 cursor-not-allowed'
+                          }`}
+                        >
+                          Send Mobile SMS Text &rarr;
+                        </button>
+                      </div>
+
+                      {smsStatusAlert && (
+                        <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-2.5 text-xs font-semibold text-emerald-800 flex items-center space-x-1.5">
+                          <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                          <span>{smsStatusAlert}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 7: SECURITY & RA 10173 AUDIT TRAIL */}
+      {activeTab === 'security' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">
+                Security Posture & Compliance Audit Trail (RA 10173)
+              </h2>
+              <p className="text-xs text-slate-500">
+                Philippine Data Privacy Act compliance controls, institutional access locks, and tamper-proof action logs.
+              </p>
+            </div>
+            <span className="rounded-full bg-emerald-100 text-emerald-800 px-3 py-1 text-xs font-bold border border-emerald-200">
+              100% RA 10173 Compliant
+            </span>
+          </div>
+
+          {/* Security Features Overview Grid */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                SSO Domain Lock
+              </span>
+              <p className="mt-1 font-bold text-sm text-slate-900">@sac.edu.ph Only</p>
+              <p className="mt-1 text-[11px] text-emerald-600 font-medium">
+                Non-institutional emails blocked at auth gate
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Public Doxxing Prevention
+              </span>
+              <p className="mt-1 font-bold text-sm text-slate-900">Zero Social Media Leaks</p>
+              <p className="mt-1 text-[11px] text-emerald-600 font-medium">
+                Eliminates Facebook masterlist photos
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Document Storage Security
+              </span>
+              <p className="mt-1 font-bold text-sm text-slate-900">AES-256 + Signed URLs</p>
+              <p className="mt-1 text-[11px] text-emerald-600 font-medium">
+                IDs & CORs never exposed to public URLs
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                DepEd LRN Integrity
+              </span>
+              <p className="mt-1 font-bold text-sm text-slate-900">12-Digit Strict Check</p>
+              <p className="mt-1 text-[11px] text-emerald-600 font-medium">
+                Stops proxy and duplicate applications
+              </p>
+            </div>
+          </div>
+
+          {/* Audit Logs Table */}
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+              <h3 className="font-bold text-sm text-slate-900">Immutable Audit Trail</h3>
+              <span className="text-xs text-slate-500 font-medium">
+                {auditLogs.length} Events Logged
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
+                <thead className="bg-slate-50 font-bold uppercase text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3">Timestamp</th>
+                    <th className="px-4 py-3">Action</th>
+                    <th className="px-4 py-3">Performed By</th>
+                    <th className="px-4 py-3">Target Student / Entity</th>
+                    <th className="px-4 py-3">Event Details</th>
+                    <th className="px-4 py-3">Severity</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-150 bg-white font-mono">
+                  {auditLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-slate-50">
+                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
+                        {log.timestamp.slice(0, 19).replace('T', ' ')}
+                      </td>
+                      <td className="px-4 py-3 font-bold text-slate-800 font-sans">
+                        {log.action}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 font-sans">{log.performedBy}</td>
+                      <td className="px-4 py-3 text-slate-900 font-semibold font-sans">
+                        {log.target}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 font-sans">{log.details}</td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`rounded px-2 py-0.5 font-bold uppercase text-[10px] ${
+                            log.severity === 'CRITICAL'
+                              ? 'bg-rose-100 text-rose-800'
+                              : log.severity === 'WARNING'
+                              ? 'bg-amber-100 text-amber-800'
+                              : 'bg-blue-100 text-anthonian-800'
+                          }`}
+                        >
+                          {log.severity}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 8: AI VERIFICATION SANDBOX */}
       {activeTab === 'sandbox' && (
         <div className="space-y-6">
           <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">

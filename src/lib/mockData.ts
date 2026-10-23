@@ -1,11 +1,13 @@
-import {
+import type {
   ScholarshipProgram,
   Application,
   PayoutBatch,
   Announcement,
   StudentProfile,
   DisbursementRecord,
-} from './types';
+  SmsMessage,
+  AuditLog,
+} from './types.ts';
 
 export const mockCurrentUser: StudentProfile = {
   id: 'stud-001',
@@ -521,3 +523,98 @@ export const mockAnnouncements: Announcement[] = [
     isPinned: false,
   },
 ];
+
+export const mockSmsMessages: SmsMessage[] = [
+  {
+    id: 'sms-001',
+    studentId: 'stud-001',
+    studentName: 'Juan Miguel Dela Cruz',
+    studentNumber: '2023-01452',
+    mobileNumber: '0917-882-9102',
+    message:
+      'SAC-ISPSO: Good day, Mr. Dela Cruz! Your 1st Sem TDP-TES grant (₱7,500) has been approved. Your payout is scheduled on Friday, Nov 14, 8:30 AM at the SAC Gym. Please present your Digital Scholar Pass in the portal.',
+    sender: 'Mrs. Alingalan (ISPSO Head)',
+    direction: 'OUTBOUND',
+    status: 'DELIVERED',
+    timestamp: '2026-10-23T14:30:00Z',
+  },
+  {
+    id: 'sms-002',
+    studentId: 'stud-001',
+    studentName: 'Juan Miguel Dela Cruz',
+    studentNumber: '2023-01452',
+    mobileNumber: '0917-882-9102',
+    message: 'Thank you po ma\'am! I have my Digital QR Pass ready on my phone.',
+    sender: 'Juan Miguel Dela Cruz',
+    direction: 'INBOUND',
+    status: 'DELIVERED',
+    timestamp: '2026-10-23T14:35:12Z',
+  },
+  {
+    id: 'sms-003',
+    studentId: 'stud-002',
+    studentName: 'Ana Marie Francisco',
+    studentNumber: '2024-00812',
+    mobileNumber: '0928-119-4821',
+    message:
+      'SAC-ISPSO: Good day, Ms. Francisco. Please visit the ISPSO office window 2 regarding a slight name format discrepancy on your uploaded ID before Nov 15.',
+    sender: 'Mr. Magbanua (Coordinator)',
+    direction: 'OUTBOUND',
+    status: 'DELIVERED',
+    timestamp: '2026-10-23T15:10:00Z',
+  },
+];
+
+export const mockAuditLogs: AuditLog[] = [
+  {
+    id: 'log-001',
+    action: 'DISBURSEMENT_COMPLETED',
+    performedBy: 'ISPSO Finance & Release Desk',
+    target: 'Juan Miguel Dela Cruz (2023-01452)',
+    details: 'Released ₱7,500 via QR Pass verification (Ref: SAC-PAY-2026-0914)',
+    timestamp: '2026-10-24T00:15:00Z',
+    severity: 'INFO',
+    ipAddress: '192.168.10.42 (SAC Admin VLAN)',
+  },
+  {
+    id: 'log-002',
+    action: 'SMS_DISPATCHED',
+    performedBy: 'Mrs. Alingalan (ISPSO Head)',
+    target: '0917-882-9102',
+    details: 'Sent payout reminder for Nov 14 Gym release to Juan Miguel Dela Cruz',
+    timestamp: '2026-10-23T14:30:00Z',
+    severity: 'INFO',
+    ipAddress: '192.168.10.15',
+  },
+  {
+    id: 'log-003',
+    action: 'ANTI_FRAUD_FLAG_TRIGGERED',
+    performedBy: 'AI Document Verification Engine',
+    target: 'Mark Villanueva (2023-04421)',
+    details: 'Duplicate image hash and Name Mismatch (18% similarity) detected on uploaded ID',
+    timestamp: '2026-10-22T08:17:00Z',
+    severity: 'CRITICAL',
+    ipAddress: 'System Core Engine',
+  },
+  {
+    id: 'log-004',
+    action: 'GRANT_APPROVED',
+    performedBy: 'ISPSO Scholarship Board',
+    target: 'Juan Miguel Dela Cruz (TDP-TES)',
+    details: 'Application endorsed to CHED Regional Office VI for 1st Sem payroll',
+    timestamp: '2026-10-20T10:00:00Z',
+    severity: 'INFO',
+    ipAddress: '192.168.10.12',
+  },
+  {
+    id: 'log-005',
+    action: 'DOCUMENT_VERIFIED',
+    performedBy: 'AI Document Verification Engine',
+    target: 'Juan Miguel Dela Cruz (LRN: 115201140091)',
+    details: '12-digit DepEd LRN validated. Name match score: 98% (Jaro-Winkler)',
+    timestamp: '2026-10-18T09:35:00Z',
+    severity: 'INFO',
+    ipAddress: 'System Core Engine',
+  },
+];
+

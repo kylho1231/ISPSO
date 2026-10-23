@@ -138,3 +138,43 @@ export interface Announcement {
   author: string;
   isPinned?: boolean;
 }
+
+export interface SmsMessage {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentNumber: string;
+  mobileNumber: string;
+  message: string;
+  sender: string; // e.g. "ISPSO Desk" or "Student"
+  direction: 'OUTBOUND' | 'INBOUND';
+  status: 'SENT' | 'DELIVERED' | 'FAILED' | 'QUEUED';
+  timestamp: string;
+}
+
+export interface ScholaChatMessage {
+  id: string;
+  sender: 'user' | 'schola';
+  text: string;
+  timestamp: string;
+  suggestedPrompts?: string[];
+  cards?: {
+    title: string;
+    description: string;
+    badge?: string;
+    amount?: string;
+    actionLabel?: string;
+  }[];
+}
+
+export interface AuditLog {
+  id: string;
+  action: string;
+  performedBy: string;
+  target: string;
+  details: string;
+  timestamp: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL';
+  ipAddress?: string;
+}
+

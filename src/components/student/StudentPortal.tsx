@@ -20,6 +20,10 @@ import {
   Check,
   AlertTriangle,
   RotateCw,
+  MessageSquare,
+  Bot,
+  Send,
+  Phone,
 } from 'lucide-react';
 import {
   StudentProfile,
@@ -27,8 +31,10 @@ import {
   ScholarshipProgram,
   Announcement,
   PayoutBatch,
+  SmsMessage,
 } from '@/lib/types';
 import { performDocumentVerification } from '@/lib/verification';
+import { ScholaChatModal } from './ScholaChatModal';
 
 interface StudentPortalProps {
   student: StudentProfile;
@@ -36,7 +42,9 @@ interface StudentPortalProps {
   programs: ScholarshipProgram[];
   announcements: Announcement[];
   payoutBatches: PayoutBatch[];
+  smsMessages?: SmsMessage[];
   onSubmitApplication: (newApp: Partial<Application>) => void;
+  onSendStudentSms?: (text: string) => void;
 }
 
 export const StudentPortal: React.FC<StudentPortalProps> = ({
@@ -45,10 +53,14 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   programs,
   announcements,
   payoutBatches,
+  smsMessages = [],
   onSubmitApplication,
+  onSendStudentSms,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'apply' | 'pass' | 'notices'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'apply' | 'pass' | 'notices' | 'sms'>('home');
   const [isMobileFrame, setIsMobileFrame] = useState(false);
+  const [isScholaOpen, setIsScholaOpen] = useState(false);
+  const [replySmsText, setReplySmsText] = useState('');
 
   // Apply Modal state
   const [selectedProgram, setSelectedProgram] = useState<ScholarshipProgram | null>(null);
@@ -166,8 +178,9 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       <div className="flex rounded-xl bg-slate-200/70 p-1 text-xs font-bold">
         {[
           { id: 'home', label: 'My Grant' },
-          { id: 'pass', label: 'Digital QR Pass' },
+          { id: 'pass', label: 'QR Pass' },
           { id: 'apply', label: 'Apply' },
+          { id: 'sms', label: 'ISPSO SMS' },
           { id: 'notices', label: 'Notices' },
         ].map((tab) => (
           <button
@@ -187,6 +200,50 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       {/* SUBTAB 1: MY ACTIVE SCHOLARSHIP & PAYOUT TRACKER */}
       {activeTab === 'home' && (
         <div className="space-y-4">
+          {/* Schola AI Companion Interactive Banner */}
+          <div className="rounded-2xl border border-anthonian-200 bg-gradient-to-r from-anthonian-50 via-white to-gold-50/40 p-4 shadow-sm">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start space-x-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-anthonian-800 to-anthonian-950 text-gold-400 shadow-md">
+                  <Bot className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="font-black text-sm text-anthonian-950">Ask Schola AI</h3>
+                    <span className="rounded-full bg-gold-400/20 px-2 py-0.5 text-[10px] font-bold text-gold-800 border border-gold-400/40">
+                      Scholar Companion
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-slate-600 leading-snug">
+                    I know your academic profile (GWA: 1.45, BS IT Year 3) and all scholarships available at St. Anthony’s College!
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsScholaOpen(true)}
+                className="shrink-0 rounded-xl bg-anthonian-800 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-anthonian-900 transition flex items-center space-x-1"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-gold-400" />
+                <span>Chat</span>
+              </button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
+              <button
+                onClick={() => setIsScholaOpen(true)}
+                className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200 hover:border-anthonian-400 transition"
+              >
+                What scholarships are available in SAC? &rarr;
+              </button>
+              <button
+                onClick={() => setIsScholaOpen(true)}
+                className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200 hover:border-anthonian-400 transition"
+              >
+                When is my TDP-TES releasing? &rarr;
+              </button>
+            </div>
+          </div>
+
           {/* Active Grant Status Card */}
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between">
@@ -396,7 +453,99 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         </div>
       )}
 
-      {/* SUBTAB 4: ANNOUNCEMENTS & OFFICIAL NOTICES */}
+      {/* SUBTAB 4: DIRECT MOBILE SMS TEXTS */}
+      {activeTab === 'sms' && (
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
+                  <Phone className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-xs text-slate-900">SAC-ISPSO Official Mobile SMS</h3>
+                  <p className="text-[11px] text-slate-500">Connected to your phone: {student.contactNumber}</p>
+                </div>
+              </div>
+              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                SMS Active
+              </span>
+            </div>
+
+            {/* SMS Thread */}
+            <div className="my-4 space-y-3 max-h-80 overflow-y-auto p-1">
+              {smsMessages
+                .filter((s) => s.studentId === student.id || s.mobileNumber === student.contactNumber)
+                .map((sms) => (
+                  <div
+                    key={sms.id}
+                    className={`flex flex-col ${
+                      sms.direction === 'OUTBOUND' ? 'items-start' : 'items-end'
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed ${
+                        sms.direction === 'OUTBOUND'
+                          ? 'bg-slate-100 text-slate-800 rounded-bl-sm border border-slate-200'
+                          : 'bg-emerald-600 text-white rounded-br-sm'
+                      }`}
+                    >
+                      <p className="font-semibold text-[10px] opacity-75 mb-0.5">
+                        {sms.direction === 'OUTBOUND' ? 'ISPSO Staff: ' + sms.sender : 'You'}
+                      </p>
+                      <p>{sms.message}</p>
+                      <span className="mt-1 block text-[9px] opacity-70 text-right">
+                        {sms.timestamp.slice(11, 16)} • {sms.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+              {smsMessages.filter(
+                (s) => s.studentId === student.id || s.mobileNumber === student.contactNumber
+              ).length === 0 && (
+                <div className="py-8 text-center text-xs text-slate-400">
+                  No SMS text messages yet. Direct updates from ISPSO staff will appear here.
+                </div>
+              )}
+            </div>
+
+            {/* Direct Reply Form */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!replySmsText.trim()) return;
+                if (onSendStudentSms) {
+                  onSendStudentSms(replySmsText);
+                }
+                setReplySmsText('');
+              }}
+              className="flex items-center gap-2 pt-2 border-t border-slate-100"
+            >
+              <input
+                type="text"
+                value={replySmsText}
+                onChange={(e) => setReplySmsText(e.target.value)}
+                placeholder="Reply via SMS to ISPSO (e.g. Confirmed, thank you)..."
+                className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600"
+              />
+              <button
+                type="submit"
+                disabled={!replySmsText.trim()}
+                className={`rounded-xl px-3.5 py-2 text-xs font-bold text-white transition shadow-sm ${
+                  replySmsText.trim()
+                    ? 'bg-emerald-600 hover:bg-emerald-700'
+                    : 'bg-slate-300 cursor-not-allowed'
+                }`}
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* SUBTAB 5: ANNOUNCEMENTS & OFFICIAL NOTICES */}
       {activeTab === 'notices' && (
         <div className="space-y-3">
           <div className="flex items-center justify-between pb-1">
@@ -621,6 +770,42 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       ) : (
         <div className="mx-auto max-w-3xl">{content}</div>
       )}
+
+      {/* FLOATING ACTION BUTTON: ASK SCHOLA */}
+      <button
+        onClick={() => setIsScholaOpen(true)}
+        className="fixed bottom-6 right-6 z-40 flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-anthonian-900 to-anthonian-800 px-4 py-3 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200 border-2 border-gold-400/40 group"
+        title="Ask Schola AI"
+      >
+        <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gold-400 text-anthonian-950 font-bold shadow-sm">
+          <Bot className="h-5 w-5" />
+          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+          </span>
+        </div>
+        <div className="text-left">
+          <div className="flex items-center space-x-1">
+            <span className="text-xs font-black tracking-tight text-white">Ask Schola</span>
+            <Sparkles className="h-3 w-3 text-gold-400" />
+          </div>
+          <span className="text-[10px] text-slate-300 font-medium block">
+            SAC AI Scholar Companion
+          </span>
+        </div>
+      </button>
+
+      {/* SCHOLA CHAT MODAL */}
+      <ScholaChatModal
+        isOpen={isScholaOpen}
+        onClose={() => setIsScholaOpen(false)}
+        student={student}
+        applications={applications}
+        programs={programs}
+        payoutBatches={payoutBatches}
+        onOpenApplyTab={() => setActiveTab('apply')}
+        onOpenPassTab={() => setActiveTab('pass')}
+      />
     </div>
   );
 };

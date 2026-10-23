@@ -10,6 +10,8 @@ import {
   Announcement,
   DisbursementRecord,
   ScholarshipProgram,
+  SmsMessage,
+  AuditLog,
 } from '@/lib/types';
 
 import {
@@ -19,6 +21,8 @@ import {
   mockPayoutBatches as initialBatches,
   mockAnnouncements as initialAnnouncements,
   mockDisbursements as initialDisbursements,
+  mockSmsMessages as initialSmsMessages,
+  mockAuditLogs as initialAuditLogs,
 } from '@/lib/mockData';
 
 export default function HomePage() {
@@ -28,6 +32,8 @@ export default function HomePage() {
   const [payoutBatches, setPayoutBatches] = useState<PayoutBatch[]>(initialBatches);
   const [announcements, setAnnouncements] = useState<Announcement[]>(initialAnnouncements);
   const [disbursements, setDisbursements] = useState<DisbursementRecord[]>(initialDisbursements);
+  const [smsMessages, setSmsMessages] = useState<SmsMessage[]>(initialSmsMessages);
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(initialAuditLogs);
   const [unreadCount, setUnreadCount] = useState(2);
 
   // Admin updates application status (Approve, Deficient, Reject)
@@ -147,6 +153,80 @@ export default function HomePage() {
       id: `app-${Date.now()}`,
     };
     setApplications((prev) => [app, ...prev]);
+
+    // Log to Audit Trail
+    const newLog: AuditLog = {
+      id: `log-${Date.now()}`,
+      action: 'APPLICATION_SUBMITTED',
+      performedBy: app.student.fullName,
+      target: app.program.name,
+      details: `Application submitted with GWA ${app.gwa}. Pre-verification: ${app.verification.status} (${app.verification.nameSimilarityScore}% match)`,
+      timestamp: new Date().toISOString(),
+      severity: 'INFO',
+      ipAddress: '192.168.1.105 (Student PWA)',
+    };
+    setAuditLogs((prev) => [newLog, ...prev]);
+  };
+
+  // ISPSO sends direct mobile SMS to a student
+  const handleSendAdminSms = (studentId: string, mobile: string, message: string) => {
+    const targetStudent = applications.find((a) => a.student.id === studentId)?.student;
+    const newSms: SmsMessage = {
+      id: `sms-${Date.now()}`,
+      studentId,
+      studentName: targetStudent?.fullName || 'Student',
+      studentNumber: targetStudent?.studentIdNumber || 'N/A',
+      mobileNumber: mobile,
+      message,
+      sender: 'ISPSO Staff Desk',
+      direction: 'OUTBOUND',
+      status: 'DELIVERED',
+      timestamp: new Date().toISOString(),
+    };
+    setSmsMessages((prev) => [...prev, newSms]);
+
+    // Log to Audit Trail
+    const newLog: AuditLog = {
+      id: `log-${Date.now()}`,
+      action: 'SMS_DISPATCHED',
+      performedBy: 'ISPSO Staff Desk',
+      target: `${targetStudent?.fullName || 'Student'} (${mobile})`,
+      details: `Outbound text sent: "${message.slice(0, 45)}..."`,
+      timestamp: new Date().toISOString(),
+      severity: 'INFO',
+      ipAddress: '192.168.10.15 (Admin VLAN)',
+    };
+    setAuditLogs((prev) => [newLog, ...prev]);
+  };
+
+  // Student replies via SMS from PWA
+  const handleSendStudentSms = (text: string) => {
+    const newSms: SmsMessage = {
+      id: `sms-${Date.now()}`,
+      studentId: initialStudent.id,
+      studentName: initialStudent.fullName,
+      studentNumber: initialStudent.studentIdNumber,
+      mobileNumber: initialStudent.contactNumber,
+      message: text,
+      sender: initialStudent.fullName,
+      direction: 'INBOUND',
+      status: 'DELIVERED',
+      timestamp: new Date().toISOString(),
+    };
+    setSmsMessages((prev) => [...prev, newSms]);
+
+    // Log to Audit Trail
+    const newLog: AuditLog = {
+      id: `log-${Date.now()}`,
+      action: 'SMS_RECEIVED',
+      performedBy: initialStudent.fullName,
+      target: 'ISPSO Office',
+      details: `Inbound student text: "${text}"`,
+      timestamp: new Date().toISOString(),
+      severity: 'INFO',
+      ipAddress: 'Mobile Carrier Gateway (0917)',
+    };
+    setAuditLogs((prev) => [newLog, ...prev]);
   };
 
   return (
@@ -167,10 +247,13 @@ export default function HomePage() {
             programs={programs}
             announcements={announcements}
             disbursements={disbursements}
+            smsMessages={smsMessages}
+            auditLogs={auditLogs}
             onUpdateApplicationStatus={handleUpdateApplicationStatus}
             onAddAnnouncement={handleAddAnnouncement}
             onAddPayoutBatch={handleAddPayoutBatch}
             onDisbursePayout={handleDisbursePayout}
+            onSendAdminSms={handleSendAdminSms}
           />
         ) : (
           <StudentPortal
@@ -179,7 +262,9 @@ export default function HomePage() {
             programs={programs}
             announcements={announcements}
             payoutBatches={payoutBatches}
+            smsMessages={smsMessages}
             onSubmitApplication={handleSubmitApplication}
+            onSendStudentSms={handleSendStudentSms}
           />
         )}
       </main>
