@@ -14,11 +14,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#1b365d',
+  themeColor: '#780000',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({
@@ -29,7 +27,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/sac-logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/sac-logo.png" />
       </head>
       <body className="min-h-screen bg-slate-50 font-sans">{children}</body>
     </html>

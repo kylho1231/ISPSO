@@ -1,22 +1,27 @@
 {
+  "id": "/",
   "name": "SAC ISPSO ScholarLink - St. Anthony's College",
   "short_name": "ScholarLink",
   "description": "Institutional Scholarship Program and Services Office Portal for St. Anthony's College, San Jose, Antique",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#1b365d",
+  "theme_color": "#780000",
   "orientation": "portrait-primary",
+  "categories": ["education", "finance"],
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "/sac-logo.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/sac-logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

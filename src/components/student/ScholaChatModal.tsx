@@ -41,11 +41,7 @@ export const ScholaChatModal: React.FC<ScholaChatModalProps> = ({
     {
       id: 'welcome',
       sender: 'schola',
-      text: `Kumusta, **${student.fullName}**! I am **Schola**, your official AI Scholar Companion for St. Anthony’s College ISPSO.
-
-I am connected to your student profile (Student ID: \`${student.studentIdNumber}\` • LRN: \`${student.lrn}\`) and have complete real-time information on all 8 SAC scholarships and your **TDP-TES** payout.
-
-How can I help you today? You can choose a quick topic below or type your question:`,
+      text: `Hello, **${student.fullName}**. This automated guide can help you find scholarship requirements, application information, and payout schedules. Choose a topic below or type a question. For confirmation or account concerns, contact ISPSO.`,
       timestamp: 'Just now',
       suggestedPrompts: [
         'What scholarships are available in SAC?',
@@ -101,21 +97,21 @@ How can I help you today? You can choose a quick topic below or type your questi
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="relative flex h-[85vh] w-full max-w-2xl flex-col rounded-3xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+      <div className="relative flex h-[85vh] w-full max-w-2xl flex-col rounded-lg bg-white shadow-2xl overflow-hidden border border-slate-200">
         {/* Header with SAC Seal & Maroon/Gold Theme */}
-        <div className="flex items-center justify-between bg-sac-maroon-800 px-5 py-4 text-white shadow">
+        <div className="flex items-center justify-between bg-sac-maroon-800 px-5 py-4 text-white ">
           <div className="flex items-center space-x-3">
-            <SacSeal className="h-10 w-10 shrink-0 drop-shadow" size={40} />
+            <SacSeal className="h-10 w-10 shrink-0 drop-" size={40} />
             <div>
               <div className="flex items-center space-x-2">
-                <h3 className="font-black text-base tracking-tight text-white">Schola AI</h3>
-                <span className="rounded-full bg-sac-gold-500/20 px-2 py-0.5 text-[10px] font-bold text-sac-gold-400 border border-sac-gold-400/30">
-                  SAC Scholar Assistant
+                <h3 className="font-semibold text-base tracking-tight text-white">Scholarship guide</h3>
+                <span className="rounded-full bg-sac-gold-500/20 px-2 py-0.5 text-xs font-bold text-white border border-sac-gold-400/30">
+                  Automated help
                 </span>
               </div>
-              <p className="text-[11px] text-sac-maroon-200 flex items-center gap-1 font-medium">
+              <p className="text-xs text-sac-maroon-200 flex items-center gap-1 font-medium">
                 <ShieldCheck className="h-3 w-3 text-emerald-400" />
-                Synchronized with {student.fullName} ({student.studentIdNumber})
+                Student: {student.fullName} ({student.studentIdNumber})
               </p>
             </div>
           </div>
@@ -143,6 +139,7 @@ How can I help you today? You can choose a quick topic below or type your questi
               <RotateCcw className="h-4 w-4" />
             </button>
             <button
+              aria-label="Close scholarship guide"
               onClick={onClose}
               className="rounded-lg p-1.5 text-sac-maroon-200 hover:bg-sac-maroon-700 hover:text-white transition"
             >
@@ -160,13 +157,13 @@ How can I help you today? You can choose a quick topic below or type your questi
             >
               <div className="flex items-start gap-2 max-w-[85%]">
                 {msg.sender === 'schola' && (
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-sac-maroon-800 text-sac-gold-400 shadow-sm mt-1">
-                    <Bot className="h-4 w-4" />
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-sac-maroon-800 text-white  mt-1">
+                    <GraduationCap className="h-4 w-4" />
                   </div>
                 )}
 
                 <div
-                  className={`rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-sm ${
+                  className={`rounded-lg px-4 py-3 text-sm leading-relaxed  ${
                     msg.sender === 'user'
                       ? 'bg-sac-maroon-800 text-white rounded-br-sm'
                       : 'bg-white text-slate-800 border border-slate-200 rounded-bl-sm'
@@ -194,20 +191,20 @@ How can I help you today? You can choose a quick topic below or type your questi
                       {msg.cards.map((card, cIdx) => (
                         <div
                           key={cIdx}
-                          className="rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs hover:border-sac-maroon-300 transition"
+                          className="rounded-md border border-slate-200 bg-slate-50 p-2.5 text-sm hover:border-sac-maroon-300 transition"
                         >
                           <div className="flex items-center justify-between font-bold">
                             <span className="text-slate-900">{card.title}</span>
                             <span className="text-sac-maroon-800 font-bold">{card.amount}</span>
                           </div>
-                          <p className="mt-0.5 text-[11px] text-slate-500">{card.description}</p>
+                          <p className="mt-0.5 text-xs text-slate-500">{card.description}</p>
                           {onOpenApplyTab && (
                             <button
                               onClick={() => {
                                 onClose();
                                 onOpenApplyTab();
                               }}
-                              className="mt-2 text-[11px] font-bold text-sac-maroon-800 hover:underline flex items-center gap-1"
+                              className="mt-2 text-xs font-bold text-sac-maroon-800 hover:underline flex items-center gap-1"
                             >
                               <span>Apply for this grant</span>
                               <ChevronRight className="h-3 w-3" />
@@ -219,8 +216,8 @@ How can I help you today? You can choose a quick topic below or type your questi
                   )}
 
                   <div
-                    className={`mt-1.5 text-[9px] ${
-                      msg.sender === 'user' ? 'text-sac-maroon-200' : 'text-slate-400'
+                    className={`mt-1.5 text-xs ${
+                      msg.sender === 'user' ? 'text-sac-maroon-200' : 'text-slate-500'
                     }`}
                   >
                     {msg.timestamp}
@@ -235,7 +232,7 @@ How can I help you today? You can choose a quick topic below or type your questi
                     <button
                       key={idx}
                       onClick={() => handleSend(prompt)}
-                      className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200 shadow-sm hover:border-sac-maroon-500 hover:text-sac-maroon-900 transition"
+                      className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 border border-slate-200  hover:border-sac-maroon-500 hover:text-sac-maroon-900 transition"
                     >
                       {prompt}
                     </button>
@@ -246,11 +243,11 @@ How can I help you today? You can choose a quick topic below or type your questi
           ))}
 
           {isTyping && (
-            <div className="flex items-center space-x-2 pl-9 text-xs text-slate-500">
-              <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-sac-maroon-800 text-sac-gold-400">
+            <div className="flex items-center space-x-2 pl-9 text-sm text-slate-500">
+              <div className="flex h-5 w-5 items-center justify-center rounded-lg bg-sac-maroon-800 text-white">
                 <Bot className="h-3.5 w-3.5" />
               </div>
-              <span className="animate-pulse font-medium">Schola is consulting St. Anthony’s College records...</span>
+              <span className="animate-pulse font-medium">Finding scholarship information…</span>
             </div>
           )}
 
@@ -268,21 +265,23 @@ How can I help you today? You can choose a quick topic below or type your questi
           >
             <input
               type="text"
+              aria-label="Scholarship question"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask Schola about available scholarships, payout dates, GWA criteria..."
-              className="flex-1 rounded-2xl border border-slate-300 px-4 py-2.5 text-xs focus:border-sac-maroon-800 focus:outline-none focus:ring-1 focus:ring-sac-maroon-800 font-medium"
+              placeholder="Ask about requirements, applications, or payouts…"
+              className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm focus:border-sac-maroon-800 focus:outline-none focus:ring-1 focus:ring-sac-maroon-800 font-medium"
             />
             <button
               type="submit"
+              aria-label="Send question"
               disabled={!input.trim()}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sac-maroon-800 text-sac-gold-400 shadow-md hover:bg-sac-maroon-900 transition disabled:opacity-40"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sac-maroon-800 text-white  hover:bg-sac-maroon-900 transition disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
             </button>
           </form>
-          <p className="mt-1.5 text-center text-[10px] text-slate-400">
-            Schola AI is integrated with St. Anthony&apos;s College ISPSO database • AY 2026-2027
+          <p className="mt-1.5 text-center text-xs text-slate-500">
+            Automated guidance. Contact ISPSO to confirm requirements and schedules.
           </p>
         </div>
       </div>
