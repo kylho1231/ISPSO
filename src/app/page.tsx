@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { AdminDashboard } from '@/components/admin/AdminDashboard';
+import { AdminLogin } from '@/components/admin/AdminLogin';
 import { StudentPortal } from '@/components/student/StudentPortal';
 import {
   Application,
@@ -27,6 +28,7 @@ import {
 
 export default function HomePage() {
   const [currentView, setCurrentView] = useState<'admin' | 'student'>('admin');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [applications, setApplications] = useState<Application[]>(initialApps);
   const [programs, setPrograms] = useState<ScholarshipProgram[]>(initialPrograms);
   const [payoutBatches, setPayoutBatches] = useState<PayoutBatch[]>(initialBatches);
@@ -236,25 +238,47 @@ export default function HomePage() {
         currentView={currentView}
         onViewChange={(v) => setCurrentView(v)}
         unreadCount={unreadCount}
+        isAdminAuthenticated={isAdminAuthenticated}
+        onAdminLogout={() => setIsAdminAuthenticated(false)}
       />
 
       {/* Main Content Area */}
       <main className="flex-1">
         {currentView === 'admin' ? (
-          <AdminDashboard
-            applications={applications}
-            payoutBatches={payoutBatches}
-            programs={programs}
-            announcements={announcements}
-            disbursements={disbursements}
-            smsMessages={smsMessages}
-            auditLogs={auditLogs}
-            onUpdateApplicationStatus={handleUpdateApplicationStatus}
-            onAddAnnouncement={handleAddAnnouncement}
-            onAddPayoutBatch={handleAddPayoutBatch}
-            onDisbursePayout={handleDisbursePayout}
-            onSendAdminSms={handleSendAdminSms}
-          />
+          isAdminAuthenticated ? (
+            <AdminDashboard
+              applications={applications}
+              payoutBatches={payoutBatches}
+              programs={programs}
+              announcements={announcements}
+              disbursements={disbursements}
+              smsMessages={smsMessages}
+              auditLogs={auditLogs}
+              onUpdateApplicationStatus={handleUpdateApplicationStatus}
+              onAddAnnouncement={handleAddAnnouncement}
+              onAddPayoutBatch={handleAddPayoutBatch}
+              onDisbursePayout={handleDisbursePayout}
+              onSendAdminSms={handleSendAdminSms}
+            />
+          ) : (
+            <AdminLogin
+              onSuccess={(user) => {
+                setIsAdminAuthenticated(true);
+                const loginLog: AuditLog = {
+                  id: `log-${Date.now()}`,
+                  action: 'ADMIN_LOGIN',
+                  performedBy: `ISPSO Admin (${user})`,
+                  target: 'ISPSO Admin Console',
+                  details: 'Successful administrator credential verification',
+                  timestamp: new Date().toISOString(),
+                  severity: 'INFO',
+                  ipAddress: '192.168.10.15 (Admin VLAN)',
+                };
+                setAuditLogs((prev) => [loginLog, ...prev]);
+              }}
+              onSwitchToStudent={() => setCurrentView('student')}
+            />
+          )
         ) : (
           <StudentPortal
             student={initialStudent}

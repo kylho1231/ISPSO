@@ -6,6 +6,7 @@ import {
   Smartphone,
   Monitor,
   Bell,
+  LogOut,
 } from 'lucide-react';
 import { SacSeal } from '@/components/SacSeal';
 
@@ -13,12 +14,16 @@ interface NavbarProps {
   currentView: 'admin' | 'student';
   onViewChange: (view: 'admin' | 'student') => void;
   unreadCount?: number;
+  isAdminAuthenticated?: boolean;
+  onAdminLogout?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentView,
   onViewChange,
   unreadCount = 2,
+  isAdminAuthenticated = false,
+  onAdminLogout,
 }) => {
   return (
     <header className="sticky top-0 z-50 border-b border-sac-maroon-100 bg-white/95 backdrop-blur shadow-sm">
@@ -100,6 +105,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {currentView === 'admin' ? 'ispso@sac.edu.ph' : 'jestrabo@sac.edu.ph'}
                 </p>
               </div>
+
+              {currentView === 'admin' && isAdminAuthenticated && onAdminLogout && (
+                <button
+                  onClick={onAdminLogout}
+                  className="rounded-lg p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition ml-1"
+                  title="Sign Out of Admin Console"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>
