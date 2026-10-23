@@ -2,14 +2,12 @@
 
 import React from 'react';
 import {
-  GraduationCap,
   ShieldCheck,
   Smartphone,
   Monitor,
   Bell,
-  User,
-  CheckCircle2,
 } from 'lucide-react';
+import { SacSeal } from '@/components/SacSeal';
 
 interface NavbarProps {
   currentView: 'admin' | 'student';
@@ -23,19 +21,19 @@ export const Navbar: React.FC<NavbarProps> = ({
   unreadCount = 2,
 }) => {
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-sac-maroon-100 bg-white/95 backdrop-blur shadow-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand & Crest */}
         <div className="flex items-center space-x-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-anthonian-800 to-anthonian-950 text-white shadow-md">
-            <GraduationCap className="h-6 w-6 text-gold-400" />
+          <div className="flex items-center justify-center">
+            <SacSeal className="h-11 w-11 drop-shadow-sm" size={44} />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="text-lg font-bold tracking-tight text-anthonian-900">
-                SAC ISPSO <span className="text-anthonian-600 font-semibold">ScholarLink</span>
+              <span className="text-lg font-black tracking-tight text-sac-maroon-900">
+                SAC ISPSO <span className="text-sac-maroon-700 font-semibold">ScholarLink</span>
               </span>
-              <span className="hidden rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-anthonian-700 sm:inline-flex items-center gap-1 border border-blue-200">
+              <span className="hidden rounded-full bg-sac-maroon-50 px-2 py-0.5 text-[11px] font-semibold text-sac-maroon-800 sm:inline-flex items-center gap-1 border border-sac-maroon-200">
                 <ShieldCheck className="h-3 w-3 text-emerald-600" /> @sac.edu.ph
               </span>
             </div>
@@ -50,26 +48,26 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center rounded-xl bg-slate-100 p-1 border border-slate-200">
             <button
               onClick={() => onViewChange('admin')}
-              className={`flex items-center space-x-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              className={`flex items-center space-x-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 currentView === 'admin'
-                  ? 'bg-anthonian-800 text-white shadow-sm'
+                  ? 'bg-sac-maroon-800 text-sac-gold-400 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Monitor className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">ISPSO Staff</span>
+              <span className="hidden sm:inline">ISPSO Staff Console</span>
               <span className="sm:hidden">Staff</span>
             </button>
             <button
               onClick={() => onViewChange('student')}
-              className={`flex items-center space-x-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
+              className={`flex items-center space-x-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
                 currentView === 'student'
-                  ? 'bg-anthonian-800 text-white shadow-sm'
+                  ? 'bg-sac-maroon-800 text-sac-gold-400 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Smartphone className="h-3.5 w-3.5 text-gold-400" />
-              <span className="hidden sm:inline">Student PWA</span>
+              <Smartphone className="h-3.5 w-3.5 text-sac-gold-400" />
+              <span className="hidden sm:inline">Student PWA Portal</span>
               <span className="sm:hidden">Student</span>
             </button>
           </div>
@@ -83,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white ring-2 ring-white">
+                  <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-sac-maroon-600 text-[10px] font-bold text-white ring-2 ring-white">
                     {unreadCount}
                   </span>
                 )}
@@ -91,15 +89,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             <div className="flex items-center space-x-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-anthonian-100 text-anthonian-800 font-bold text-xs ring-2 ring-anthonian-800/20">
-                {currentView === 'admin' ? 'AD' : 'JD'}
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sac-maroon-100 text-sac-maroon-800 font-bold text-xs ring-2 ring-sac-gold-400">
+                {currentView === 'admin' ? 'AD' : 'JE'}
               </div>
               <div className="hidden text-left md:block">
                 <p className="text-xs font-bold text-slate-800 leading-none">
-                  {currentView === 'admin' ? 'ISPSO Admin Desk' : 'Juan Miguel Dela Cruz'}
+                  {currentView === 'admin' ? 'ISPSO Admin Desk' : 'Jhon Kylho Estrabo'}
                 </p>
                 <p className="text-[10px] text-slate-500 font-medium leading-tight">
-                  {currentView === 'admin' ? 'ispso@sac.edu.ph' : 'jdelacruz@sac.edu.ph'}
+                  {currentView === 'admin' ? 'ispso@sac.edu.ph' : 'jestrabo@sac.edu.ph'}
                 </p>
               </div>
             </div>

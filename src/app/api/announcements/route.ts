@@ -7,9 +7,10 @@ export async function GET(request: NextRequest) {
 
   let results = mockAnnouncements;
   if (program && program !== 'ALL') {
-    results = results.filter(
-      (a) => a.targetPrograms.includes('ALL') || a.targetPrograms.includes(program)
-    );
+    results = results.filter((a) => {
+      const list = a.targetPrograms || (a.targetProgram ? [a.targetProgram] : ['ALL']);
+      return list.includes('ALL') || list.includes(program);
+    });
   }
 
   return NextResponse.json({

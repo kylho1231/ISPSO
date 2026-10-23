@@ -12,6 +12,7 @@ export interface StudentProfile {
   municipality: string;
   isProfileComplete: boolean;
   avatarUrl?: string;
+  gwa?: number;
 }
 
 export type ProgramCategory = 'GOVERNMENT' | 'INSTITUTIONAL' | 'PRIVATE';
@@ -98,10 +99,10 @@ export interface PayoutBatch {
   id: string;
   programId: string;
   programCode: string;
-  programName: string;
+  programName?: string;
   batchNumber: string; // e.g. "Batch 1: Surnames A - D"
-  academicYear: string;
-  semester: string;
+  academicYear?: string;
+  semester?: string;
   scheduledDate: string;
   startTime: string;
   endTime: string;
@@ -131,12 +132,20 @@ export interface Announcement {
   id: string;
   title: string;
   content: string;
-  category: 'PAYOUT' | 'APPLICATION' | 'DEADLINE' | 'GENERAL';
-  priority: 'NORMAL' | 'HIGH' | 'URGENT';
-  targetPrograms: string[]; // ['ALL'] or specific codes ['TES', 'TDP']
+  category: 'PAYOUT' | 'APPLICATION' | 'DEADLINE' | 'GENERAL' | 'REQUIREMENT';
+  priority: 'NORMAL' | 'HIGH' | 'URGENT' | 'CRITICAL';
+  targetPrograms?: string[]; // ['ALL'] or specific codes ['TES', 'TDP']
+  targetProgram?: string;
   publishedAt: string;
   author: string;
   isPinned?: boolean;
+  facebookSynced?: boolean;
+  payoutBatchDetails?: {
+    date: string;
+    time: string;
+    venue: string;
+    requirements: string[];
+  };
 }
 
 export interface SmsMessage {

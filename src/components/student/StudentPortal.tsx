@@ -24,6 +24,7 @@ import {
   Bot,
   Send,
   Phone,
+  Award,
 } from 'lucide-react';
 import {
   StudentProfile,
@@ -35,6 +36,7 @@ import {
 } from '@/lib/types';
 import { performDocumentVerification } from '@/lib/verification';
 import { ScholaChatModal } from './ScholaChatModal';
+import { SacSeal } from '@/components/SacSeal';
 
 interface StudentPortalProps {
   student: StudentProfile;
@@ -64,10 +66,10 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
   // Apply Modal state
   const [selectedProgram, setSelectedProgram] = useState<ScholarshipProgram | null>(null);
-  const [gwa, setGwa] = useState('1.65');
+  const [gwa, setGwa] = useState('1.38');
   const [income, setIncome] = useState('180000');
-  const [uploadedIdName, setUploadedIdName] = useState('Juan Miguel Dela Cruz');
-  const [uploadedLrn, setUploadedLrn] = useState('115201140091');
+  const [uploadedIdName, setUploadedIdName] = useState(student.fullName || 'Jhon Kylho Estrabo');
+  const [uploadedLrn, setUploadedLrn] = useState(student.lrn || '115201140091');
   const [uploadFileName, setUploadFileName] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [preVerifyResult, setPreVerifyResult] = useState<any>(null);
@@ -77,7 +79,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   const myApp = applications.find((a) => a.studentId === student.id) || applications[0];
 
   // Matching payout batch for this student's approved grant
-  const myPayoutBatch = payoutBatches.find((b) => b.programCode === myApp?.program.code);
+  const myPayoutBatch = payoutBatches.find((b) => b.programCode === myApp?.program.code) || payoutBatches[0];
 
   const handleSimulateUpload = (fileName: string) => {
     setUploadFileName(fileName);
@@ -88,14 +90,14 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       const res = performDocumentVerification({
         registeredName: student.fullName,
         registeredLrn: student.lrn,
-        extractedText: `ST. ANTHONY COLLEGE SAN JOSE ANTIQUE\nNAME: ${uploadedIdName}\nLRN: ${uploadedLrn}\nID: ${student.studentIdNumber}`,
+        extractedText: `ST. ANTHONY COLLEGE SAN JOSE ANTIQUE\nNAME: ${uploadedIdName}\nLRN: ${uploadedLrn}\nID: ${student.studentIdNumber}\nCOURSE: ${student.course}`,
         extractedName: uploadedIdName,
         extractedLrn: uploadedLrn,
         fileHash: `hash-${Date.now()}`,
       });
       setIsVerifying(false);
       setPreVerifyResult(res);
-    }, 800);
+    }, 700);
   };
 
   const handleFinalSubmit = (e: React.FormEvent) => {
@@ -115,7 +117,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         {
           id: `doc-${Date.now()}`,
           type: 'STUDENT_ID',
-          fileName: uploadFileName || 'ID_Photo.jpg',
+          fileName: uploadFileName || 'JhonEstrabo_ID_Validated.jpg',
           fileUrl: '/uploads/sample_id.jpg',
           fileHash: `hash-${Date.now()}`,
           uploadedAt: new Date().toISOString(),
@@ -136,46 +138,96 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
   const content = (
     <div className="space-y-5 pb-20">
-      {/* Top Header & Institutional Profile */}
-      <div className="rounded-2xl bg-gradient-to-br from-anthonian-900 via-anthonian-800 to-anthonian-950 p-5 text-white shadow-lg">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center space-x-2">
-              <span className="rounded-full bg-gold-400/20 px-2.5 py-0.5 text-[11px] font-bold text-gold-300 border border-gold-400/30">
-                Registered Anthonian
-              </span>
-              <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-400">
-                <ShieldCheck className="h-3.5 w-3.5" /> LRN Verified
-              </span>
+      {/* ============================================================== */}
+      {/* 1. STUDENT IDENTITY CARD (Deep Maroon & Official SAC Seal)     */}
+      {/* ============================================================== */}
+      <div className="rounded-3xl bg-sac-maroon-800 p-5 text-white shadow-xl border border-sac-maroon-700 relative overflow-hidden">
+        {/* Subtle Background Glow */}
+        <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-sac-gold-500/10 rounded-full blur-2xl" />
+
+        <div className="flex items-start justify-between relative z-10">
+          <div className="flex items-start space-x-3.5">
+            <SacSeal className="h-12 w-12 drop-shadow shrink-0" size={48} />
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="rounded-full bg-sac-gold-500/20 px-2.5 py-0.5 text-[10px] font-bold text-sac-gold-300 border border-sac-gold-400/30">
+                  Registered Anthonian
+                </span>
+                <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400">
+                  <ShieldCheck className="h-3.5 w-3.5" /> @sac.edu.ph Verified
+                </span>
+              </div>
+              <h1 className="mt-1 text-xl font-black tracking-tight text-white">{student.fullName}</h1>
+              <p className="text-xs text-sac-maroon-200 font-medium">
+                {student.course} • Year {student.yearLevel}
+              </p>
             </div>
-            <h1 className="mt-2 text-xl font-black tracking-tight">{student.fullName}</h1>
-            <p className="text-xs text-slate-300">
-              {student.course} • Year {student.yearLevel}
-            </p>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-gold-400 border border-white/20 shadow-inner">
-            <GraduationCap className="h-7 w-7" />
+
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sac-gold-500 font-black text-sac-maroon-950 text-sm shadow">
+            JE
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-2 border-t border-white/10 pt-3 font-mono text-xs">
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-sac-maroon-700/80 pt-3 font-mono text-xs relative z-10">
           <div>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+            <span className="text-[9px] text-sac-maroon-300 uppercase tracking-wider block">
               Student ID No.
             </span>
             <span className="font-bold text-white">{student.studentIdNumber}</span>
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">
+            <span className="text-[9px] text-sac-maroon-300 uppercase tracking-wider block">
               DepEd LRN (12-Digit)
             </span>
-            <span className="font-bold text-gold-400">{student.lrn}</span>
+            <span className="font-bold text-sac-gold-400">{student.lrn}</span>
           </div>
         </div>
       </div>
 
+      {/* ============================================================== */}
+      {/* 2. WELCOME HERO BANNER (From User's UI Screenshot 222357.png)  */}
+      {/* ============================================================== */}
+      <div className="rounded-3xl bg-gradient-to-r from-sac-maroon-900 via-sac-maroon-800 to-sac-maroon-900 p-6 text-white shadow-lg border border-sac-maroon-700 relative overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div>
+            <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-sac-gold-400 bg-sac-maroon-950/70 px-2.5 py-1 rounded-full border border-sac-gold-400/30 mb-2">
+              St. Anthony’s College ISPSO Portal
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white leading-tight">
+              Welcome to your Scholarship Portal!
+            </h2>
+            <p className="mt-1.5 text-xs text-sac-maroon-100 max-w-lg leading-relaxed">
+              Discover financial aid opportunities, apply seamlessly with automated document verification, and check your releasing schedule at the SAC Gymnasium.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                onClick={() => setActiveTab('apply')}
+                className="rounded-xl bg-sac-gold-500 px-4 py-2 text-xs font-black text-sac-maroon-950 shadow hover:bg-sac-gold-400 transition"
+              >
+                Browse Grants &rarr;
+              </button>
+              <button
+                onClick={() => setActiveTab('pass')}
+                className="rounded-xl bg-sac-maroon-950/80 px-4 py-2 text-xs font-bold text-white border border-sac-maroon-600 hover:bg-sac-maroon-950 transition"
+              >
+                View My Status &amp; QR Pass
+              </button>
+              <button
+                onClick={() => setIsScholaOpen(true)}
+                className="rounded-xl bg-white/10 px-4 py-2 text-xs font-bold text-sac-gold-300 border border-white/20 hover:bg-white/20 transition flex items-center space-x-1"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-sac-gold-400" />
+                <span>Ask Schola AI</span>
+              </button>
+            </div>
+          </div>
+          <SacSeal className="hidden sm:block h-24 w-24 shrink-0 drop-shadow-xl opacity-95" size={96} />
+        </div>
+      </div>
+
       {/* QUICK SUBNAV TABS */}
-      <div className="flex rounded-xl bg-slate-200/70 p-1 text-xs font-bold">
+      <div className="flex rounded-2xl bg-slate-200/80 p-1 text-xs font-bold shadow-inner">
         {[
           { id: 'home', label: 'My Grant' },
           { id: 'pass', label: 'QR Pass' },
@@ -186,9 +238,9 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`flex-1 rounded-lg py-2 transition text-center ${
+            className={`flex-1 rounded-xl py-2.5 transition text-center ${
               activeTab === tab.id
-                ? 'bg-white text-anthonian-900 shadow-sm'
+                ? 'bg-sac-maroon-800 text-sac-gold-400 font-black shadow-md'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -197,33 +249,35 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         ))}
       </div>
 
-      {/* SUBTAB 1: MY ACTIVE SCHOLARSHIP & PAYOUT TRACKER */}
+      {/* ============================================================== */}
+      {/* SUBTAB 1: MY ACTIVE SCHOLARSHIP & PAYOUT TRACKER               */}
+      {/* ============================================================== */}
       {activeTab === 'home' && (
         <div className="space-y-4">
-          {/* Schola AI Companion Interactive Banner */}
-          <div className="rounded-2xl border border-anthonian-200 bg-gradient-to-r from-anthonian-50 via-white to-gold-50/40 p-4 shadow-sm">
+          {/* Ask Schola AI Companion Card */}
+          <div className="rounded-2xl border border-sac-maroon-200 bg-gradient-to-r from-sac-maroon-50 via-white to-sac-gold-50/50 p-4 shadow-sm">
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-anthonian-800 to-anthonian-950 text-gold-400 shadow-md">
-                  <Bot className="h-6 w-6" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-sac-maroon-800 text-sac-gold-400 shadow-md">
+                  <Bot className="h-5 w-5" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h3 className="font-black text-sm text-anthonian-950">Ask Schola AI</h3>
-                    <span className="rounded-full bg-gold-400/20 px-2 py-0.5 text-[10px] font-bold text-gold-800 border border-gold-400/40">
+                    <h3 className="font-black text-sm text-sac-maroon-950">Ask Schola AI</h3>
+                    <span className="rounded-full bg-sac-gold-400/20 px-2 py-0.5 text-[10px] font-bold text-sac-gold-800 border border-sac-gold-400/40">
                       Scholar Companion
                     </span>
                   </div>
                   <p className="mt-0.5 text-xs text-slate-600 leading-snug">
-                    I know your academic profile (GWA: 1.45, BS IT Year 3) and all scholarships available at St. Anthony’s College!
+                    I know your academic profile (GWA: 1.38, BSIT 3) and all 8 available scholarships at St. Anthony’s College!
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsScholaOpen(true)}
-                className="shrink-0 rounded-xl bg-anthonian-800 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-anthonian-900 transition flex items-center space-x-1"
+                className="shrink-0 rounded-xl bg-sac-maroon-800 px-3.5 py-2 text-xs font-bold text-sac-gold-400 shadow hover:bg-sac-maroon-900 transition flex items-center space-x-1"
               >
-                <Sparkles className="h-3.5 w-3.5 text-gold-400" />
+                <Sparkles className="h-3.5 w-3.5" />
                 <span>Chat</span>
               </button>
             </div>
@@ -231,15 +285,15 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
             <div className="mt-3 flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
               <button
                 onClick={() => setIsScholaOpen(true)}
-                className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200 hover:border-anthonian-400 transition"
+                className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200 hover:border-sac-maroon-400 transition"
               >
                 What scholarships are available in SAC? &rarr;
               </button>
               <button
                 onClick={() => setIsScholaOpen(true)}
-                className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200 hover:border-anthonian-400 transition"
+                className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 border border-slate-200 hover:border-sac-maroon-400 transition"
               >
-                When is my TDP-TES releasing? &rarr;
+                When is my scholarship payout? &rarr;
               </button>
             </div>
           </div>
@@ -248,255 +302,288 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between">
               <div>
-                <span className="rounded bg-anthonian-100 px-2 py-0.5 text-[11px] font-black text-anthonian-800">
-                  {myApp.program.code}
+                <span className="rounded-md bg-sac-maroon-100 px-2 py-0.5 text-[11px] font-bold text-sac-maroon-800">
+                  {myApp?.program.code || 'TDP-TES'}
                 </span>
-                <h2 className="mt-1.5 text-base font-bold text-slate-900 leading-snug">
-                  {myApp.program.name}
-                </h2>
-                <p className="text-xs text-slate-500 font-medium">AY 2026-2027 • 1st Semester</p>
-              </div>
-              <div className="text-right">
-                <span className="text-xs text-slate-400 block font-medium">Grant Amount</span>
-                <span className="text-lg font-black text-emerald-600">
-                  ₱{myApp.program.grantAmount.toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            {/* Releasing Schedule Alert Pill */}
-            {myPayoutBatch && (
-              <div className="mt-4 rounded-xl bg-gradient-to-r from-amber-50 to-amber-100/60 p-3.5 border border-amber-200">
-                <div className="flex items-center space-x-2 text-amber-900 font-bold text-xs">
-                  <Calendar className="h-4 w-4 text-amber-700 shrink-0" />
-                  <span>Scheduled Campus Releasing Date</span>
-                </div>
-                <p className="mt-1 text-xs text-amber-800 font-medium">
-                  {myPayoutBatch.scheduledDate} ({myPayoutBatch.startTime} - {myPayoutBatch.endTime})
+                <h3 className="mt-2 text-base font-bold text-slate-900">
+                  {myApp?.program.name || 'Tulong Dunong Program (TDP-TES)'}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Provider: {myApp?.program.provider || 'CHED / UniFAST'} • AY 2026-2027 1st Sem
                 </p>
-                <div className="mt-1 flex items-center space-x-1.5 text-[11px] text-amber-700">
-                  <MapPin className="h-3 w-3 shrink-0" />
-                  <span>{myPayoutBatch.venue}</span>
-                </div>
-                <div className="mt-2 text-[11px] text-amber-900 bg-amber-200/60 px-2 py-1 rounded font-semibold">
-                  Bring your Validated SAC ID & present the Digital Scholar QR Pass below.
-                </div>
               </div>
-            )}
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                ● {myApp?.status || 'APPROVED'}
+              </span>
+            </div>
 
-            {/* Visual Releasing Tracker Timeline */}
-            <div className="mt-5 border-t border-slate-100 pt-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                Live Disbursement Tracker
-              </h3>
-              <div className="space-y-3">
-                {[
-                  {
-                    title: 'Application & Documents Submitted',
-                    desc: 'COR & SAC Student ID submitted via portal',
-                    done: true,
-                  },
-                  {
-                    title: 'DepEd LRN & Identity Verified',
-                    desc: 'Automated 12-digit LRN & Jaro-Winkler check passed (98%)',
-                    done: true,
-                  },
-                  {
-                    title: 'ISPSO & CHED Endorsement',
-                    desc: 'Included in Masterlist for 1st Sem Subsidy Payroll',
-                    done: true,
-                  },
-                  {
-                    title: 'Scheduled for Campus Payout',
-                    desc: 'Nov 14, 2026 at SAC Gymnasium',
-                    done: true,
-                    active: true,
-                  },
-                  {
-                    title: 'Disbursed & Signed',
-                    desc: 'Present QR Pass at releasing window to claim',
-                    done: false,
-                  },
-                ].map((step, idx) => (
-                  <div key={idx} className="flex items-start space-x-3">
-                    <div
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                        step.done
-                          ? 'bg-emerald-600 text-white'
-                          : step.active
-                          ? 'bg-amber-500 text-white animate-pulse'
-                          : 'bg-slate-200 text-slate-500'
-                      }`}
-                    >
-                      {step.done ? <Check className="h-3.5 w-3.5" /> : idx + 1}
-                    </div>
-                    <div>
-                      <p
-                        className={`text-xs font-bold leading-tight ${
-                          step.active ? 'text-amber-800' : step.done ? 'text-slate-900' : 'text-slate-400'
-                        }`}
-                      >
-                        {step.title}
-                      </p>
-                      <p className="text-[11px] text-slate-500">{step.desc}</p>
-                    </div>
+            <div className="mt-4 rounded-xl bg-slate-50 p-3.5 text-xs border border-slate-100">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">Stipend Subsidy:</span>
+                <span className="text-sm font-black text-slate-900">
+                  ₱{(myApp?.program.grantAmount || 7500).toLocaleString()}
+                </span>
+              </div>
+              <div className="mt-1 flex justify-between items-center">
+                <span className="text-slate-500">Validation Status:</span>
+                <span className="font-bold text-emerald-600 flex items-center gap-1">
+                  <Check className="h-3.5 w-3.5" /> 12-Digit LRN &amp; ID Verified
+                </span>
+              </div>
+            </div>
+
+            {/* Next Payout Alert Box (Replaces Facebook Posts) */}
+            <div className="mt-4 rounded-2xl bg-sac-gold-50/80 p-4 border border-sac-gold-300">
+              <div className="flex items-start space-x-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sac-gold-500 text-sac-maroon-950 font-bold">
+                  <Calendar className="h-5 w-5" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-sac-maroon-950">
+                      Confirmed Campus Payout Release
+                    </h4>
+                    <span className="rounded-full bg-sac-gold-200 px-2 py-0.5 text-[10px] font-bold text-sac-gold-900">
+                      Batch 1
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* SUBTAB 2: DIGITAL SCHOLAR PASS (QR CODE) */}
-      {activeTab === 'pass' && (
-        <div className="rounded-2xl border-2 border-anthonian-800 bg-white p-6 shadow-md text-center">
-          <div className="border-b border-slate-100 pb-3">
-            <span className="text-[10px] font-black uppercase tracking-widest text-anthonian-800">
-              ST. ANTHONY’S COLLEGE ISPSO
-            </span>
-            <h2 className="text-base font-black text-slate-900">Digital Scholar Pass</h2>
-            <p className="text-xs text-slate-500">Official Campus Releasing Voucher</p>
-          </div>
-
-          {/* Dynamic QR Code representation */}
-          <div className="my-5 flex flex-col items-center justify-center">
-            <div className="relative rounded-2xl border-4 border-anthonian-900 bg-white p-4 shadow-xl">
-              {/* Stylized QR Box */}
-              <div className="flex h-48 w-48 flex-col items-center justify-center rounded-xl bg-slate-900 text-white p-3 font-mono text-[9px] relative overflow-hidden">
-                <QrCode className="h-36 w-36 text-white" />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-                  <GraduationCap className="h-40 w-40 text-gold-400" />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-3 flex items-center space-x-1.5 text-xs text-emerald-700 font-bold">
-              <ShieldCheck className="h-4 w-4" />
-              <span>Cryptographically Signed Pass</span>
-            </div>
-          </div>
-
-          {/* Student Pass Details */}
-          <div className="rounded-xl bg-slate-50 p-3.5 text-left text-xs font-mono space-y-1.5 border border-slate-200">
-            <div className="flex justify-between">
-              <span className="text-slate-500">SCHOLAR:</span>
-              <span className="font-bold text-slate-900">{student.fullName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">STUDENT ID:</span>
-              <span className="font-bold text-slate-900">{student.studentIdNumber}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">DEPED LRN:</span>
-              <span className="font-bold text-gold-600">{student.lrn}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">PROGRAM:</span>
-              <span className="font-bold text-slate-900">{myApp.program.code} (₱7,500)</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">VALIDITY:</span>
-              <span className="font-bold text-emerald-600">1ST SEMESTER 2026-2027</span>
-            </div>
-          </div>
-
-          <p className="mt-4 text-[11px] text-slate-400">
-            Show this screen to the ISPSO or SAC Finance officer at the gymnasium release counter.
-          </p>
-        </div>
-      )}
-
-      {/* SUBTAB 3: APPLY FOR SCHOLARSHIP */}
-      {activeTab === 'apply' && (
-        <div className="space-y-4">
-          <div className="rounded-xl bg-blue-50 p-4 border border-blue-200">
-            <h3 className="text-xs font-bold text-anthonian-900">Available Scholarships & Grants</h3>
-            <p className="text-[11px] text-anthonian-700 mt-0.5">
-              Select an open program below to submit your application and upload requirements.
-            </p>
-          </div>
-
-          {programs.map((prog) => (
-            <div
-              key={prog.id}
-              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm hover:border-slate-300 transition"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="rounded bg-anthonian-100 px-2 py-0.5 text-[11px] font-black text-anthonian-800">
-                    {prog.code}
-                  </span>
-                  <h4 className="mt-1 font-bold text-sm text-slate-900">{prog.name}</h4>
-                  <p className="text-xs text-slate-500 font-medium">{prog.provider}</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-xs font-black text-emerald-600">
-                    ₱{prog.grantAmount.toLocaleString()}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block">{prog.frequency}</span>
+                  <p className="mt-1 text-xs font-bold text-slate-900">
+                    November 25, 2026 (Friday) • 09:00 AM – 12:00 PM
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-600">
+                    Venue: <span className="font-bold text-slate-800">SAC Gymnasium (Releasing Counters 1-3)</span>
+                  </p>
+                  <div className="mt-2 text-[11px] text-slate-600">
+                    Requirements: Validated SAC Student ID &amp; Digital QR Pass.
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center justify-between text-xs pt-3 border-t border-slate-100">
-                <span className="text-slate-500 text-[11px]">Deadline: {prog.deadline}</span>
+              <div className="mt-3 pt-3 border-t border-sac-gold-200 flex justify-end">
                 <button
-                  onClick={() => setSelectedProgram(prog)}
-                  className="rounded-lg bg-anthonian-800 px-3 py-1.5 text-xs font-bold text-white hover:bg-anthonian-900 transition flex items-center space-x-1"
+                  onClick={() => setActiveTab('pass')}
+                  className="rounded-xl bg-sac-maroon-800 px-3.5 py-1.5 text-xs font-bold text-sac-gold-400 hover:bg-sac-maroon-900 transition flex items-center space-x-1.5 shadow"
                 >
-                  <span>Apply Now</span>
-                  <ChevronRight className="h-3 w-3" />
+                  <QrCode className="h-3.5 w-3.5" />
+                  <span>Show QR Claim Pass &rarr;</span>
                 </button>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Quick Scholarships Explorer */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Explore St. Anthony’s College Scholarships (8 Available)
+              </h3>
+              <button
+                onClick={() => setActiveTab('apply')}
+                className="text-xs font-bold text-sac-maroon-800 hover:underline"
+              >
+                View Catalog &rarr;
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {programs.slice(0, 4).map((prog) => (
+                <div
+                  key={prog.id}
+                  onClick={() => {
+                    setSelectedProgram(prog);
+                    setActiveTab('apply');
+                  }}
+                  className="rounded-xl border border-slate-200 p-3 hover:border-sac-maroon-400 hover:bg-sac-maroon-50/20 transition cursor-pointer"
+                >
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] font-bold text-sac-maroon-800 bg-sac-maroon-100 px-1.5 py-0.5 rounded">
+                      {prog.code}
+                    </span>
+                    <span className="text-xs font-black text-slate-900">
+                      ₱{prog.grantAmount.toLocaleString()}
+                    </span>
+                  </div>
+                  <h4 className="mt-1.5 font-bold text-xs text-slate-900 line-clamp-1">{prog.name}</h4>
+                  <p className="text-[10px] text-slate-500 line-clamp-1">{prog.provider}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
-      {/* SUBTAB 4: DIRECT MOBILE SMS TEXTS */}
+      {/* ============================================================== */}
+      {/* SUBTAB 2: DIGITAL QR CLAIM PASS                                */}
+      {/* ============================================================== */}
+      {activeTab === 'pass' && (
+        <div className="space-y-4">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm text-center space-y-4">
+            <div>
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 inline-flex items-center gap-1">
+                <CheckCircle2 className="h-3.5 w-3.5" /> OFFICIAL RELEASING PASS ACTIVE
+              </span>
+              <h3 className="mt-2 text-lg font-black text-slate-900">
+                St. Anthony’s College ISPSO
+              </h3>
+              <p className="text-xs text-slate-500">
+                Present this QR code to the cashier at SAC Gymnasium to claim your stipend.
+              </p>
+            </div>
+
+            {/* Dynamic QR Code Mockup */}
+            <div className="mx-auto flex h-52 w-52 flex-col items-center justify-center rounded-2xl bg-white p-3 border-4 border-sac-maroon-800 shadow-md relative">
+              <div className="grid grid-cols-6 gap-1.5 w-full h-full p-2 bg-slate-950 rounded-xl">
+                {Array.from({ length: 36 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`rounded-sm ${
+                      (i * 7) % 3 === 0 || i % 5 === 0 ? 'bg-white' : 'bg-transparent'
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-xl bg-white p-1 shadow flex items-center justify-center">
+                  <SacSeal className="h-8 w-8" size={32} />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-slate-50 p-3 font-mono text-xs text-slate-700 space-y-1 text-left border border-slate-200">
+              <div className="flex justify-between">
+                <span className="text-slate-400">STUDENT:</span>
+                <span className="font-bold text-slate-900">{student.fullName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">ID NUMBER:</span>
+                <span className="font-bold text-slate-900">{student.studentIdNumber}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">DEPED LRN:</span>
+                <span className="font-bold text-sac-maroon-800">{student.lrn}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">PROGRAM:</span>
+                <span className="font-bold">{myApp?.program.code || 'TDP-TES'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">STIPEND:</span>
+                <span className="font-bold text-emerald-600">₱{(myApp?.program.grantAmount || 7500).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <p className="text-[10px] text-slate-400">
+              Anti-Screenshot Security Hash: <code className="font-mono">SAC-SEC-2026-482910</code> • Verified Real-time
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* SUBTAB 3: APPLY FOR SCHOLARSHIP                                */}
+      {/* ============================================================== */}
+      {activeTab === 'apply' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-black text-slate-900">Available Scholarships (8)</h3>
+              <p className="text-xs text-slate-500">
+                Select a program to apply with real-time AI document verification.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {programs.map((prog) => (
+              <div
+                key={prog.id}
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-3 hover:border-sac-maroon-400 transition"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="rounded-md bg-sac-maroon-100 px-2 py-0.5 text-xs font-bold text-sac-maroon-800">
+                      {prog.code}
+                    </span>
+                    <h4 className="mt-1.5 text-base font-bold text-slate-900">{prog.name}</h4>
+                    <p className="text-xs text-sac-maroon-700 font-medium">{prog.provider}</p>
+                  </div>
+                  <span className="text-base font-black text-slate-900">
+                    ₱{prog.grantAmount.toLocaleString()}
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed">{prog.description}</p>
+
+                <div className="rounded-xl bg-slate-50 p-3 text-xs space-y-1 border border-slate-100">
+                  <p className="font-bold text-slate-700">Eligibility Criteria:</p>
+                  <ul className="list-disc list-inside space-y-0.5 text-slate-600">
+                    {prog.eligibilityCriteria.slice(0, 2).map((crit, idx) => (
+                      <li key={idx}>{crit}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <span className="text-[11px] text-slate-500">
+                    Deadline: <strong className="text-rose-600">{prog.deadline}</strong>
+                  </span>
+                  <button
+                    onClick={() => setSelectedProgram(prog)}
+                    className="rounded-xl bg-sac-maroon-800 px-4 py-2 text-xs font-bold text-sac-gold-400 hover:bg-sac-maroon-900 shadow transition"
+                  >
+                    Apply Now &rarr;
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* SUBTAB 4: ISPSO DIRECT MOBILE SMS TEXT THREAD                  */}
+      {/* ============================================================== */}
       {activeTab === 'sms' && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center space-x-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-                  <Phone className="h-5 w-5" />
+              <div className="flex items-center space-x-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sac-maroon-800 text-sac-gold-400">
+                  <Phone className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-xs text-slate-900">SAC-ISPSO Official Mobile SMS</h3>
-                  <p className="text-[11px] text-slate-500">Connected to your phone: {student.contactNumber}</p>
+                  <h3 className="text-xs font-bold text-slate-900">ISPSO Staff Mobile SMS Desk</h3>
+                  <p className="text-[10px] text-slate-500">Hotline: 0906-451-6128 • St. Anthony’s College</p>
                 </div>
               </div>
-              <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                SMS Active
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                Connected
               </span>
             </div>
 
-            {/* SMS Thread */}
-            <div className="my-4 space-y-3 max-h-80 overflow-y-auto p-1">
+            <div className="mt-4 space-y-3 max-h-80 overflow-y-auto pr-1">
               {smsMessages
-                .filter((s) => s.studentId === student.id || s.mobileNumber === student.contactNumber)
-                .map((sms) => (
+                .filter(
+                  (s) => s.studentId === student.id || s.mobileNumber === student.contactNumber
+                )
+                .map((msg) => (
                   <div
-                    key={sms.id}
+                    key={msg.id}
                     className={`flex flex-col ${
-                      sms.direction === 'OUTBOUND' ? 'items-start' : 'items-end'
+                      msg.direction === 'INBOUND' ? 'items-end' : 'items-start'
                     }`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed ${
-                        sms.direction === 'OUTBOUND'
-                          ? 'bg-slate-100 text-slate-800 rounded-bl-sm border border-slate-200'
-                          : 'bg-emerald-600 text-white rounded-br-sm'
+                      className={`max-w-xs rounded-2xl p-3 text-xs shadow-sm ${
+                        msg.direction === 'INBOUND'
+                          ? 'bg-sac-maroon-800 text-white rounded-br-none'
+                          : 'bg-slate-100 text-slate-800 rounded-bl-none'
                       }`}
                     >
-                      <p className="font-semibold text-[10px] opacity-75 mb-0.5">
-                        {sms.direction === 'OUTBOUND' ? 'ISPSO Staff: ' + sms.sender : 'You'}
-                      </p>
-                      <p>{sms.message}</p>
-                      <span className="mt-1 block text-[9px] opacity-70 text-right">
-                        {sms.timestamp.slice(11, 16)} • {sms.status}
-                      </span>
+                      <p className="leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+                    </div>
+                    <div className="mt-1 text-[10px] text-slate-400">
+                      {msg.sender} • {msg.timestamp.slice(11, 16)}
                     </div>
                   </div>
                 ))}
@@ -520,21 +607,21 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                 }
                 setReplySmsText('');
               }}
-              className="flex items-center gap-2 pt-2 border-t border-slate-100"
+              className="flex items-center gap-2 pt-3 border-t border-slate-100 mt-3"
             >
               <input
                 type="text"
                 value={replySmsText}
                 onChange={(e) => setReplySmsText(e.target.value)}
-                placeholder="Reply via SMS to ISPSO (e.g. Confirmed, thank you)..."
-                className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                placeholder="Reply via SMS to ISPSO (e.g. Confirmed, I will be at the Gym at 9am)..."
+                className="flex-1 rounded-xl border border-slate-300 px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-sac-maroon-800"
               />
               <button
                 type="submit"
                 disabled={!replySmsText.trim()}
-                className={`rounded-xl px-3.5 py-2 text-xs font-bold text-white transition shadow-sm ${
+                className={`rounded-xl px-4 py-2 text-xs font-bold text-white transition shadow-sm ${
                   replySmsText.trim()
-                    ? 'bg-emerald-600 hover:bg-emerald-700'
+                    ? 'bg-sac-maroon-800 text-sac-gold-400 hover:bg-sac-maroon-900'
                     : 'bg-slate-300 cursor-not-allowed'
                 }`}
               >
@@ -545,12 +632,14 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         </div>
       )}
 
-      {/* SUBTAB 5: ANNOUNCEMENTS & OFFICIAL NOTICES */}
+      {/* ============================================================== */}
+      {/* SUBTAB 5: ANNOUNCEMENTS & OFFICIAL NOTICES                     */}
+      {/* ============================================================== */}
       {activeTab === 'notices' && (
         <div className="space-y-3">
           <div className="flex items-center justify-between pb-1">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              ISPSO Direct Broadcasts
+              ISPSO Official Notices (Replaces Facebook Feed)
             </h3>
             <span className="text-[11px] text-slate-400">{announcements.length} Total</span>
           </div>
@@ -558,19 +647,19 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
           {announcements.map((ann) => (
             <div
               key={ann.id}
-              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-2"
+              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-2"
             >
               <div className="flex items-center justify-between">
                 <span
-                  className={`rounded px-2 py-0.5 text-[10px] font-black uppercase ${
-                    ann.priority === 'URGENT'
+                  className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase ${
+                    ann.priority === 'CRITICAL'
                       ? 'bg-rose-100 text-rose-700'
                       : ann.priority === 'HIGH'
-                      ? 'bg-amber-100 text-amber-800'
-                      : 'bg-blue-100 text-anthonian-800'
+                      ? 'bg-sac-gold-100 text-sac-gold-800'
+                      : 'bg-slate-100 text-slate-700'
                   }`}
                 >
-                  {ann.priority}
+                  {ann.priority} PRIORITY
                 </span>
                 <span className="text-[10px] text-slate-400 font-medium">
                   {ann.publishedAt.slice(0, 10)}
@@ -585,16 +674,28 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         </div>
       )}
 
-      {/* APPLICATION WIZARD MODAL */}
+      {/* ============================================================== */}
+      {/* APPLICATION WIZARD MODAL (Fixing "Scan Failed" Error)          */}
+      {/* ============================================================== */}
       {selectedProgram && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-base font-black text-slate-900">
-              Apply for {selectedProgram.name}
-            </h3>
-            <p className="text-xs text-slate-500 mb-4">
-              Upload your validated SAC ID. The Verification API will inspect your DepEd LRN and name in real-time.
-            </p>
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+              <div>
+                <h3 className="text-base font-black text-slate-900">
+                  Apply for {selectedProgram.name}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Grant Amount: <strong className="text-sac-maroon-800">₱{selectedProgram.grantAmount.toLocaleString()}</strong> ({selectedProgram.frequency})
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedProgram(null)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100"
+              >
+                &times;
+              </button>
+            </div>
 
             {submittedSuccess ? (
               <div className="py-8 text-center space-y-2">
@@ -603,7 +704,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                 </div>
                 <h4 className="text-sm font-bold text-slate-900">Application Submitted!</h4>
                 <p className="text-xs text-slate-500">
-                  Your identity and LRN have been verified. Redirecting to dashboard...
+                  Your identity and 12-digit LRN have been verified. Redirecting to dashboard...
                 </p>
               </div>
             ) : (
@@ -615,8 +716,8 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                       type="text"
                       value={gwa}
                       onChange={(e) => setGwa(e.target.value)}
-                      placeholder="e.g. 1.75"
-                      className="mt-1 w-full rounded-lg border border-slate-300 p-2 focus:ring-anthonian-800 focus:outline-none font-bold"
+                      placeholder="e.g. 1.38"
+                      className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 focus:ring-sac-maroon-800 focus:outline-none font-bold"
                     />
                   </div>
                   <div>
@@ -625,18 +726,18 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                       type="text"
                       value={income}
                       onChange={(e) => setIncome(e.target.value)}
-                      placeholder="e.g. 150000"
-                      className="mt-1 w-full rounded-lg border border-slate-300 p-2 focus:ring-anthonian-800 focus:outline-none"
+                      placeholder="e.g. 180000"
+                      className="mt-1 w-full rounded-xl border border-slate-300 p-2.5 focus:ring-sac-maroon-800 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 {/* Simulated Document Upload Area */}
-                <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 p-4 text-center">
-                  <Upload className="mx-auto h-6 w-6 text-slate-400" />
-                  <p className="mt-1 font-bold text-slate-700">Upload Validated SAC Student ID</p>
-                  <p className="text-[11px] text-slate-400">
-                    JPG or PNG. Ensure the 1st Sem sticker and LRN are visible.
+                <div className="rounded-2xl border-2 border-dashed border-sac-maroon-300 bg-sac-maroon-50/30 p-4 text-center">
+                  <Upload className="mx-auto h-7 w-7 text-sac-maroon-800" />
+                  <p className="mt-1 font-bold text-slate-900">Upload Validated SAC Student ID &amp; COR</p>
+                  <p className="text-[11px] text-slate-500">
+                    The AI Verification Engine will inspect your 12-digit DepEd LRN and name similarity.
                   </p>
 
                   <div className="mt-3 flex flex-wrap justify-center gap-2">
@@ -645,11 +746,11 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                       onClick={() => {
                         setUploadedIdName(student.fullName);
                         setUploadedLrn(student.lrn);
-                        handleSimulateUpload('My_Validated_SAC_ID.jpg');
+                        handleSimulateUpload('JhonEstrabo_SAC_ID.jpg');
                       }}
-                      className="rounded-md bg-white px-2.5 py-1 text-[11px] font-bold text-slate-700 border border-slate-300 shadow-sm hover:bg-slate-100"
+                      className="rounded-xl bg-white px-3 py-1.5 text-[11px] font-bold text-slate-800 border border-slate-300 shadow-sm hover:bg-slate-50"
                     >
-                      Use Correct My ID (Match)
+                      Upload Valid My ID (100% Match)
                     </button>
                     <button
                       type="button"
@@ -658,48 +759,48 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                         setUploadedLrn('115201189912');
                         handleSimulateUpload('Other_Student_ID.jpg');
                       }}
-                      className="rounded-md bg-rose-50 px-2.5 py-1 text-[11px] font-bold text-rose-700 border border-rose-200 shadow-sm hover:bg-rose-100"
+                      className="rounded-xl bg-rose-50 px-3 py-1.5 text-[11px] font-bold text-rose-700 border border-rose-200 shadow-sm hover:bg-rose-100"
                     >
-                      Simulate Fake / Mismatched ID
+                      Simulate Mismatched ID (Fraud Test)
                     </button>
                   </div>
                 </div>
 
-                {/* Real-time Verification Feedback */}
+                {/* Real-time Verification Feedback (Fixed "Scan Failed") */}
                 {isVerifying && (
-                  <div className="flex items-center justify-center space-x-2 py-3 text-xs text-anthonian-700 font-medium">
+                  <div className="flex items-center justify-center space-x-2 py-3 text-xs text-sac-maroon-800 font-bold">
                     <RotateCw className="h-4 w-4 animate-spin" />
-                    <span>AI Engine inspecting ID text & LRN checksum...</span>
+                    <span>AI Engine inspecting OCR text &amp; DepEd 12-digit LRN checksum...</span>
                   </div>
                 )}
 
                 {preVerifyResult && (
                   <div
-                    className={`rounded-xl p-3.5 border ${
+                    className={`rounded-2xl p-4 border ${
                       preVerifyResult.status === 'VERIFIED'
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                        : 'bg-rose-50 border-rose-200 text-rose-900'
+                        ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                        : 'bg-rose-50 border-rose-300 text-rose-900'
                     }`}
                   >
                     <div className="flex items-center justify-between font-bold">
                       <span className="flex items-center gap-1.5">
                         {preVerifyResult.status === 'VERIFIED' ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                          <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                         ) : (
-                          <AlertTriangle className="h-4 w-4 text-rose-600" />
+                          <AlertTriangle className="h-5 w-5 text-rose-600" />
                         )}
-                        <span>{preVerifyResult.status.replace(/_/g, ' ')}</span>
+                        <span>{preVerifyResult.status === 'VERIFIED' ? 'AI VERDICT: VERIFIED (Match ✓)' : preVerifyResult.status.replace(/_/g, ' ')}</span>
                       </span>
-                      <span>{preVerifyResult.nameSimilarityScore}% Name Match</span>
+                      <span className="font-mono">{preVerifyResult.nameSimilarityScore}% Name Match</span>
                     </div>
 
                     <div className="mt-2 text-[11px] space-y-0.5">
                       <div>
-                        <span className="text-slate-500">Detected Name:</span>{' '}
+                        <span className="text-slate-500">Detected Name on ID:</span>{' '}
                         <span className="font-bold">{preVerifyResult.extractedName}</span>
                       </div>
                       <div>
-                        <span className="text-slate-500">Detected LRN:</span>{' '}
+                        <span className="text-slate-500">Detected 12-Digit LRN:</span>{' '}
                         <span className="font-mono font-bold">{preVerifyResult.extractedLrn}</span>
                       </div>
                     </div>
@@ -719,17 +820,17 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                       setSelectedProgram(null);
                       setPreVerifyResult(null);
                     }}
-                    className="rounded-lg border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    className="rounded-xl border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={!preVerifyResult || preVerifyResult.status === 'NAME_MISMATCH'}
-                    className={`rounded-lg px-4 py-2 text-xs font-bold text-white transition ${
+                    className={`rounded-xl px-4 py-2 text-xs font-bold text-white transition shadow ${
                       !preVerifyResult || preVerifyResult.status === 'NAME_MISMATCH'
                         ? 'bg-slate-300 cursor-not-allowed'
-                        : 'bg-anthonian-800 hover:bg-anthonian-900'
+                        : 'bg-sac-maroon-800 text-sac-gold-400 hover:bg-sac-maroon-900'
                     }`}
                   >
                     Submit Application
@@ -748,21 +849,21 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       {/* Device Viewport Toggle (Phone Mockup vs Full Screen) */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Smartphone className="h-4 w-4 text-anthonian-700" />
+          <Smartphone className="h-4 w-4 text-sac-maroon-800" />
           <span className="text-xs font-bold text-slate-700">
             Student PWA Experience (@sac.edu.ph)
           </span>
         </div>
         <button
           onClick={() => setIsMobileFrame(!isMobileFrame)}
-          className="rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+          className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
         >
           {isMobileFrame ? 'Expand Full Screen' : 'View Mobile Phone Mockup'}
         </button>
       </div>
 
       {isMobileFrame ? (
-        <div className="mx-auto max-w-sm rounded-[40px] border-8 border-slate-800 bg-slate-100 p-4 shadow-2xl overflow-hidden min-h-[720px] relative">
+        <div className="mx-auto max-w-sm rounded-[44px] border-[10px] border-slate-800 bg-slate-100 p-4 shadow-2xl overflow-hidden min-h-[720px] relative">
           {/* Phone Notch */}
           <div className="mx-auto h-4 w-32 rounded-full bg-slate-800 mb-4" />
           {content}
@@ -774,10 +875,10 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       {/* FLOATING ACTION BUTTON: ASK SCHOLA */}
       <button
         onClick={() => setIsScholaOpen(true)}
-        className="fixed bottom-6 right-6 z-40 flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-anthonian-900 to-anthonian-800 px-4 py-3 text-white shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-200 border-2 border-gold-400/40 group"
+        className="fixed bottom-6 right-6 z-40 flex items-center space-x-2.5 rounded-2xl bg-sac-maroon-800 px-4 py-3 text-white shadow-2xl hover:scale-105 transition-all duration-200 border-2 border-sac-gold-400 group"
         title="Ask Schola AI"
       >
-        <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gold-400 text-anthonian-950 font-bold shadow-sm">
+        <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-sac-gold-500 text-sac-maroon-950 font-bold shadow-sm">
           <Bot className="h-5 w-5" />
           <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -787,9 +888,9 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         <div className="text-left">
           <div className="flex items-center space-x-1">
             <span className="text-xs font-black tracking-tight text-white">Ask Schola</span>
-            <Sparkles className="h-3 w-3 text-gold-400" />
+            <Sparkles className="h-3.5 w-3.5 text-sac-gold-400" />
           </div>
-          <span className="text-[10px] text-slate-300 font-medium block">
+          <span className="text-[10px] text-sac-gold-300 font-medium block">
             SAC AI Scholar Companion
           </span>
         </div>

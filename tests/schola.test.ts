@@ -18,9 +18,9 @@ const testContext = {
 test('Schola AI Assistant Intelligence Engine', async (t) => {
   await t.test('knows student personal information and 12-digit LRN', () => {
     const response = generateScholaResponse('Tell me my info and LRN', testContext);
-    assert.match(response.text, /Juan Miguel Dela Cruz/);
+    assert.match(response.text, /Jhon Kylho Estrabo/);
     assert.match(response.text, /115201140091/);
-    assert.match(response.text, /2023-01452/);
+    assert.match(response.text, /STUDENT-JH-2026/);
     assert.match(response.text, /BS Information Technology/);
   });
 
