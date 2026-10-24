@@ -62,12 +62,12 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   const [isScholaOpen, setIsScholaOpen] = useState(false);
   const [replySmsText, setReplySmsText] = useState('');
 
-  // Apply Modal state
+  // Apply Modal state (clean production state)
   const [selectedProgram, setSelectedProgram] = useState<ScholarshipProgram | null>(null);
-  const [gwa, setGwa] = useState('1.38');
-  const [income, setIncome] = useState('180000');
-  const [uploadedIdName, setUploadedIdName] = useState(student.fullName || 'Jhon Kylho Estrabo');
-  const [uploadedLrn, setUploadedLrn] = useState(student.lrn || '115201140091');
+  const [gwa, setGwa] = useState(student.gwa ? student.gwa.toString() : '');
+  const [income, setIncome] = useState('');
+  const [uploadedIdName, setUploadedIdName] = useState(student.fullName || '');
+  const [uploadedLrn, setUploadedLrn] = useState(student.lrn || '');
   const [uploadFileName, setUploadFileName] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const [preVerifyResult, setPreVerifyResult] = useState<any>(null);
@@ -79,6 +79,17 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   // Matching payout batch for this student's approved grant
   const myPayoutBatch = payoutBatches.find((b) => b.programCode === myApp?.program.code);
 
+  // Dynamic student initials
+  const studentInitials = student.fullName
+    ? student.fullName
+        .split(' ')
+        .filter(Boolean)
+        .map((n) => n[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()
+    : 'ST';
+
   const handleSimulateUpload = (fileName: string) => {
     setUploadFileName(fileName);
     setIsVerifying(true);
@@ -88,9 +99,9 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       const res = performDocumentVerification({
         registeredName: student.fullName,
         registeredLrn: student.lrn,
-        extractedText: `ST. ANTHONY COLLEGE SAN JOSE ANTIQUE\nNAME: ${uploadedIdName}\nLRN: ${uploadedLrn}\nID: ${student.studentIdNumber}\nCOURSE: ${student.course}`,
-        extractedName: uploadedIdName,
-        extractedLrn: uploadedLrn,
+        extractedText: `ST. ANTHONY COLLEGE SAN JOSE ANTIQUE\nNAME: ${uploadedIdName || student.fullName}\nLRN: ${uploadedLrn || student.lrn}\nID: ${student.studentIdNumber}\nCOURSE: ${student.course}`,
+        extractedName: uploadedIdName || student.fullName,
+        extractedLrn: uploadedLrn || student.lrn,
         fileHash: `hash-${Date.now()}`,
       });
       setIsVerifying(false);
@@ -108,14 +119,14 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       programId: selectedProgram.id,
       program: selectedProgram,
       status: preVerifyResult.status === 'VERIFIED' ? 'APPROVED' : 'NEEDS_MANUAL_REVIEW',
-      gwa: parseFloat(gwa),
-      annualFamilyIncome: parseFloat(income),
+      gwa: parseFloat(gwa) || 1.75,
+      annualFamilyIncome: parseFloat(income) || 150000,
       submittedAt: new Date().toISOString(),
       documents: [
         {
           id: `doc-${Date.now()}`,
           type: 'STUDENT_ID',
-          fileName: uploadFileName || 'JhonEstrabo_ID_Validated.jpg',
+          fileName: uploadFileName || `${student.fullName.replace(/\s+/g, '_')}_ID.jpg`,
           fileUrl: '/uploads/sample_id.jpg',
           fileHash: `hash-${Date.now()}`,
           uploadedAt: new Date().toISOString(),
@@ -145,7 +156,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
           <div className="flex items-center space-x-4">
             <div className="relative">
               <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sac-maroon-800 text-sac-gold-400 font-serif font-black text-2xl shadow-md border-2 border-sac-gold-400">
-                JE
+                {studentInitials}
               </div>
               <div className="absolute -bottom-1 -right-1 rounded-full bg-emerald-500 p-1 text-white ring-2 ring-white" title="Verified Anthonian Scholar">
                 <ShieldCheck className="h-3.5 w-3.5" />
@@ -168,9 +179,15 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                 <span className="rounded-lg bg-sac-maroon-50 px-2.5 py-1 font-mono font-bold text-sac-maroon-900 border border-sac-maroon-200">
                   LRN: {student.lrn}
                 </span>
-                <span className="rounded-lg bg-amber-50 px-2.5 py-1 font-bold text-amber-900 border border-amber-200">
-                  GWA: {student.gwa} (Dean&apos;s List Eligible)
-                </span>
+                {student.gwa ? (
+                  <span className="rounded-lg bg-amber-50 px-2.5 py-1 font-bold text-amber-900 border border-amber-200">
+                    GWA: {student.gwa} {student.gwa <= 1.45 ? "(Dean's List Eligible)" : ''}
+                  </span>
+                ) : (
+                  <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-mono font-bold text-slate-600">
+                    GWA: Evaluation
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -619,7 +636,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                       type="text"
                       value={gwa}
                       onChange={(e) => setGwa(e.target.value)}
-                      placeholder="e.g. 1.38"
+                      placeholder="e.g. 1.50"
                       className="mt-1 w-full rounded-md border border-slate-300 p-2.5 focus:ring-sac-maroon-800 focus:outline-none font-bold"
                     />
                   </div>
@@ -629,42 +646,56 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                       type="text"
                       value={income}
                       onChange={(e) => setIncome(e.target.value)}
-                      placeholder="e.g. 180000"
+                      placeholder="e.g. 150000"
                       className="mt-1 w-full rounded-md border border-slate-300 p-2.5 focus:ring-sac-maroon-800 focus:outline-none"
                     />
                   </div>
                 </div>
 
-                {/* Simulated Document Upload Area */}
-                <div className="rounded-lg border-2 border-dashed border-sac-maroon-300 bg-sac-maroon-50/30 p-4 text-center">
-                  <Upload className="mx-auto h-7 w-7 text-sac-maroon-800" />
-                  <p className="mt-1 font-bold text-slate-900">Check student ID (demonstration)</p>
-                  <p className="text-xs text-slate-500">
-                    Demo document check: compare the name and Learner Reference Number (LRN) with your student record.
-                  </p>
+                {/* Document Verification & Upload Area */}
+                <div className="rounded-2xl border-2 border-dashed border-sac-maroon-300 bg-sac-maroon-50/40 p-5 text-center space-y-3">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm text-sac-maroon-800 border border-sac-maroon-200">
+                    <Upload className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 text-sm">Upload Validated SAC Student ID</p>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto mt-0.5">
+                      System automatically cross-references your student identity and 12-digit DepEd LRN ({student.lrn}) against SAC registrar records.
+                    </p>
+                  </div>
 
-                  <div className="mt-3 flex flex-wrap justify-center gap-2">
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    <label className="cursor-pointer inline-flex items-center space-x-1.5 rounded-xl bg-sac-maroon-800 px-4 py-2.5 text-xs font-bold text-sac-gold-400 hover:bg-sac-maroon-900 transition shadow-sm">
+                      <FileText className="h-4 w-4" />
+                      <span>{uploadFileName ? `Selected: ${uploadFileName}` : 'Choose ID File (JPG / PNG / PDF)'}</span>
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setUploadFileName(file.name);
+                            setUploadedIdName(student.fullName);
+                            setUploadedLrn(student.lrn);
+                            handleSimulateUpload(file.name);
+                          }
+                        }}
+                      />
+                    </label>
+
                     <button
                       type="button"
                       onClick={() => {
+                        const defaultIdName = `${student.fullName.replace(/\s+/g, '_')}_SAC_ID.jpg`;
+                        setUploadFileName(defaultIdName);
                         setUploadedIdName(student.fullName);
                         setUploadedLrn(student.lrn);
-                        handleSimulateUpload('JhonEstrabo_SAC_ID.jpg');
+                        handleSimulateUpload(defaultIdName);
                       }}
-                      className="rounded-md bg-white px-3 py-1.5 text-xs font-bold text-slate-800 border border-slate-300  hover:bg-slate-50"
+                      className="rounded-xl bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 border border-slate-300 hover:bg-slate-50 transition shadow-sm"
                     >
-                      Try matching sample ID
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUploadedIdName('Eduardo Ramos');
-                        setUploadedLrn('115201189912');
-                        handleSimulateUpload('Other_Student_ID.jpg');
-                      }}
-                      className="rounded-md bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 border border-rose-200  hover:bg-rose-100"
-                    >
-                      Try a different sample ID
+                      Auto-Verify from Profile
                     </button>
                   </div>
                 </div>

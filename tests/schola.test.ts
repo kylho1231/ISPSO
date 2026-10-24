@@ -46,7 +46,7 @@ test('Schola AI Assistant Intelligence Engine', async (t) => {
     assert.match(response.text, /2026-11-14/);
     assert.match(response.text, /SAC Gymnasium/);
     assert.match(response.text, /7,500/);
-    assert.match(response.text, /Digital Scholar Pass/);
+    assert.match(response.text, /Validated SAC Student ID/);
   });
 
   await t.test('explains application process and required documents', () => {

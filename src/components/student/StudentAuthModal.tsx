@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { SacSeal } from '@/components/SacSeal';
 import { StudentProfile } from '@/lib/types';
-import { mockCurrentUser } from '@/lib/mockData';
+import { getStoredRegisteredStudents, saveStoredRegisteredStudents } from '@/lib/storage';
 
 interface StudentAuthModalProps {
   isOpen: boolean;
@@ -32,19 +32,19 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
 }) => {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
 
-  // Login Form State
-  const [loginEmail, setLoginEmail] = useState('jestrabo@sac.edu.ph');
-  const [loginPassword, setLoginPassword] = useState('student123');
+  // Login Form State (Clean production state)
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
-  // Register Form State
-  const [regFullName, setRegFullName] = useState('Jhon Kylho Estrabo');
-  const [regStudentId, setRegStudentId] = useState('STUDENT-JH-2026');
-  const [regLrn, setRegLrn] = useState('115201140091');
-  const [regEmail, setRegEmail] = useState('jestrabo@sac.edu.ph');
-  const [regCourse, setRegCourse] = useState('BS Information Technology (BSIT 3)');
-  const [regYear, setRegYear] = useState('3');
-  const [regPhone, setRegPhone] = useState('0917-882-9102');
-  const [regPassword, setRegPassword] = useState('student123');
+  // Register Form State (Clean production state)
+  const [regFullName, setRegFullName] = useState('');
+  const [regStudentId, setRegStudentId] = useState('');
+  const [regLrn, setRegLrn] = useState('');
+  const [regEmail, setRegEmail] = useState('');
+  const [regCourse, setRegCourse] = useState('BS Information Technology (BSIT)');
+  const [regYear, setRegYear] = useState('1');
+  const [regPhone, setRegPhone] = useState('');
+  const [regPassword, setRegPassword] = useState('');
 
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -58,17 +58,44 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
 
     setTimeout(() => {
       setIsLoading(false);
+      const emailTrimmed = loginEmail.trim().toLowerCase();
+
       // Domain validation check for @sac.edu.ph
-      if (!loginEmail.toLowerCase().endsWith('@sac.edu.ph')) {
+      if (!emailTrimmed.endsWith('@sac.edu.ph')) {
         setError('Only official @sac.edu.ph institutional email addresses are permitted.');
         return;
       }
 
-      // Successful student login
-      onLoginSuccess({
-        ...mockCurrentUser,
-        email: loginEmail,
-      });
+      // Check registered students
+      const registered = getStoredRegisteredStudents();
+      const existing = registered.find((s) => s.email.toLowerCase() === emailTrimmed);
+
+      if (existing) {
+        onLoginSuccess(existing);
+      } else {
+        // Derive clean initial profile from institutional email
+        const localPart = emailTrimmed.split('@')[0];
+        const formattedName = localPart
+          .replace(/[._-]/g, ' ')
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+
+        const newProfile: StudentProfile = {
+          id: `stud-${Date.now()}`,
+          email: emailTrimmed,
+          fullName: formattedName,
+          studentIdNumber: `SAC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+          lrn: '115201140001',
+          course: 'College of Computer Studies',
+          yearLevel: 1,
+          contactNumber: '0917-000-0000',
+          municipality: 'San Jose de Buenavista, Antique',
+          isProfileComplete: true,
+        };
+
+        saveStoredRegisteredStudents([...registered, newProfile]);
+        onLoginSuccess(newProfile);
+      }
+
       onClose();
     }, 400);
   };
@@ -80,40 +107,38 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
 
     setTimeout(() => {
       setIsLoading(false);
-      if (!regEmail.toLowerCase().endsWith('@sac.edu.ph')) {
+      const emailTrimmed = regEmail.trim().toLowerCase();
+
+      if (!emailTrimmed.endsWith('@sac.edu.ph')) {
         setError('Registration is restricted to @sac.edu.ph institutional accounts.');
         return;
       }
 
-      if (regLrn.replace(/\D/g, '').length !== 12) {
+      const cleanLrn = regLrn.replace(/\D/g, '');
+      if (cleanLrn.length !== 12) {
         setError('Please enter a valid 12-digit DepEd Learner Reference Number (LRN).');
         return;
       }
 
       const newStudent: StudentProfile = {
         id: `stud-${Date.now()}`,
-        email: regEmail.trim(),
+        email: emailTrimmed,
         fullName: regFullName.trim(),
         studentIdNumber: regStudentId.trim(),
-        lrn: regLrn.replace(/\D/g, ''),
+        lrn: cleanLrn,
         course: regCourse,
         yearLevel: parseInt(regYear) || 1,
         contactNumber: regPhone.trim(),
         municipality: 'San Jose de Buenavista, Antique',
         isProfileComplete: true,
-        gwa: 1.38,
       };
+
+      const registered = getStoredRegisteredStudents();
+      saveStoredRegisteredStudents([...registered.filter((s) => s.email !== emailTrimmed), newStudent]);
 
       onLoginSuccess(newStudent);
       onClose();
     }, 500);
-  };
-
-  const handleQuickDemo = () => {
-    setLoginEmail('jestrabo@sac.edu.ph');
-    setLoginPassword('student123');
-    onLoginSuccess(mockCurrentUser);
-    onClose();
   };
 
   return (
@@ -190,7 +215,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                     required
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="e.g. jestrabo@sac.edu.ph"
+                    placeholder="your.name@sac.edu.ph"
                     className="w-full rounded-xl border border-slate-300 pl-10 pr-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sac-maroon-800"
                   />
                 </div>
@@ -207,25 +232,18 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                     required
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="Enter your student password"
+                    placeholder="Enter your account password"
                     className="w-full rounded-xl border border-slate-300 pl-10 pr-3.5 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-sac-maroon-800"
                   />
                 </div>
               </div>
 
-              {/* Demo One-Click Fill */}
-              <div className="rounded-xl bg-sac-maroon-50 p-3 border border-sac-maroon-200 flex items-center justify-between text-[11px]">
-                <div>
-                  <span className="font-bold text-sac-maroon-900">Demo Scholar:</span>{' '}
-                  <span className="text-slate-600">Jhon Kylho Estrabo</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleQuickDemo}
-                  className="font-bold text-sac-maroon-800 hover:underline"
-                >
-                  Quick Sign In &rarr;
-                </button>
+              {/* Institutional Notice */}
+              <div className="rounded-xl bg-sac-maroon-50/70 p-3 border border-sac-maroon-200/80 text-[11px] text-slate-700 leading-relaxed">
+                <span className="font-bold text-sac-maroon-900">Institutional Access:</span>{' '}
+                Only active St. Anthony&apos;s College students with an official{' '}
+                <span className="font-mono font-bold text-sac-maroon-800">@sac.edu.ph</span> Google Workspace
+                account can authenticate into ScholarLink.
               </div>
 
               <button
@@ -246,7 +264,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                   required
                   value={regFullName}
                   onChange={(e) => setRegFullName(e.target.value)}
-                  placeholder="e.g. Jhon Kylho Estrabo"
+                  placeholder="e.g. Maria Santos Dela Cruz"
                   className="w-full rounded-xl border border-slate-300 p-2.5 text-xs"
                 />
               </div>
@@ -259,7 +277,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                     required
                     value={regStudentId}
                     onChange={(e) => setRegStudentId(e.target.value)}
-                    placeholder="e.g. STUDENT-JH-2026"
+                    placeholder="e.g. 2026-00412"
                     className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-mono"
                   />
                 </div>
@@ -271,7 +289,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                     maxLength={12}
                     value={regLrn}
                     onChange={(e) => setRegLrn(e.target.value)}
-                    placeholder="e.g. 115201140091"
+                    placeholder="e.g. 115201140001"
                     className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-mono"
                   />
                 </div>
@@ -284,7 +302,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                   required
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  placeholder="e.g. jestrabo@sac.edu.ph"
+                  placeholder="e.g. msantos@sac.edu.ph"
                   className="w-full rounded-xl border border-slate-300 p-2.5 text-xs"
                 />
               </div>
@@ -297,7 +315,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                     required
                     value={regCourse}
                     onChange={(e) => setRegCourse(e.target.value)}
-                    placeholder="e.g. BSIT 3"
+                    placeholder="e.g. BS Information Technology"
                     className="w-full rounded-xl border border-slate-300 p-2.5 text-xs"
                   />
                 </div>
@@ -308,7 +326,7 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                     required
                     value={regPhone}
                     onChange={(e) => setRegPhone(e.target.value)}
-                    placeholder="e.g. 0917-882-9102"
+                    placeholder="e.g. 0917-123-4567"
                     className="w-full rounded-xl border border-slate-300 p-2.5 text-xs"
                   />
                 </div>

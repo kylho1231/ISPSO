@@ -11,25 +11,25 @@ import {
   StudentProfile,
 } from './types';
 import {
-  mockCurrentUser as initialStudent,
   mockScholarshipPrograms as initialPrograms,
-  mockApplications as initialApps,
   mockPayoutBatches as initialBatches,
   mockAnnouncements as initialAnnouncements,
-  mockDisbursements as initialDisbursements,
-  mockSmsMessages as initialSmsMessages,
-  mockAuditLogs as initialAuditLogs,
+  mockApplications as demoApps,
+  mockDisbursements as demoDisbursements,
+  mockSmsMessages as demoSmsMessages,
+  mockAuditLogs as demoAuditLogs,
 } from './mockData';
 
 const STORAGE_KEYS = {
-  APPLICATIONS: 'sac_ispso_applications_v2',
-  ANNOUNCEMENTS: 'sac_ispso_announcements_v2',
-  BATCHES: 'sac_ispso_batches_v2',
-  DISBURSEMENTS: 'sac_ispso_disbursements_v2',
-  SMS: 'sac_ispso_sms_v2',
-  LOGS: 'sac_ispso_logs_v2',
-  STUDENT_SESSION: 'sac_ispso_student_session_v2',
-  ADMIN_AUTH: 'sac_ispso_admin_auth_v2',
+  APPLICATIONS: 'sac_ispso_applications_v4',
+  ANNOUNCEMENTS: 'sac_ispso_announcements_v4',
+  BATCHES: 'sac_ispso_batches_v4',
+  DISBURSEMENTS: 'sac_ispso_disbursements_v4',
+  SMS: 'sac_ispso_sms_v4',
+  LOGS: 'sac_ispso_logs_v4',
+  STUDENT_SESSION: 'sac_ispso_student_session_v4',
+  REGISTERED_STUDENTS: 'sac_ispso_registered_students_v4',
+  ADMIN_AUTH: 'sac_ispso_admin_auth_v4',
 };
 
 // Safe JSON parse with fallback
@@ -54,7 +54,8 @@ function safeSave<T>(key: string, value: T): void {
   }
 }
 
-export const getStoredApplications = (): Application[] => safeLoad(STORAGE_KEYS.APPLICATIONS, initialApps);
+// Production storage functions: start clean without dummy submissions
+export const getStoredApplications = (): Application[] => safeLoad(STORAGE_KEYS.APPLICATIONS, []);
 export const saveStoredApplications = (apps: Application[]) => safeSave(STORAGE_KEYS.APPLICATIONS, apps);
 
 export const getStoredAnnouncements = (): Announcement[] => safeLoad(STORAGE_KEYS.ANNOUNCEMENTS, initialAnnouncements);
@@ -63,17 +64,36 @@ export const saveStoredAnnouncements = (anns: Announcement[]) => safeSave(STORAG
 export const getStoredBatches = (): PayoutBatch[] => safeLoad(STORAGE_KEYS.BATCHES, initialBatches);
 export const saveStoredBatches = (batches: PayoutBatch[]) => safeSave(STORAGE_KEYS.BATCHES, batches);
 
-export const getStoredDisbursements = (): DisbursementRecord[] => safeLoad(STORAGE_KEYS.DISBURSEMENTS, initialDisbursements);
+export const getStoredDisbursements = (): DisbursementRecord[] => safeLoad(STORAGE_KEYS.DISBURSEMENTS, []);
 export const saveStoredDisbursements = (disb: DisbursementRecord[]) => safeSave(STORAGE_KEYS.DISBURSEMENTS, disb);
 
-export const getStoredSms = (): SmsMessage[] => safeLoad(STORAGE_KEYS.SMS, initialSmsMessages);
+export const getStoredSms = (): SmsMessage[] => safeLoad(STORAGE_KEYS.SMS, []);
 export const saveStoredSms = (sms: SmsMessage[]) => safeSave(STORAGE_KEYS.SMS, sms);
 
-export const getStoredLogs = (): AuditLog[] => safeLoad(STORAGE_KEYS.LOGS, initialAuditLogs);
+export const getStoredLogs = (): AuditLog[] =>
+  safeLoad(STORAGE_KEYS.LOGS, [
+    {
+      id: 'log-boot',
+      action: 'SYSTEM_ONLINE',
+      performedBy: 'ISPSO Security Core',
+      target: 'ScholarLink Server',
+      details: 'ISPSO Centralized ScholarLink online and ready for student registrations.',
+      timestamp: new Date().toISOString(),
+      severity: 'INFO',
+      ipAddress: '127.0.0.1 (Campus LAN)',
+    },
+  ]);
 export const saveStoredLogs = (logs: AuditLog[]) => safeSave(STORAGE_KEYS.LOGS, logs);
 
-export const getStoredStudentSession = (): StudentProfile | null => safeLoad<StudentProfile | null>(STORAGE_KEYS.STUDENT_SESSION, null);
-export const saveStoredStudentSession = (student: StudentProfile | null) => safeSave(STORAGE_KEYS.STUDENT_SESSION, student);
+export const getStoredRegisteredStudents = (): StudentProfile[] =>
+  safeLoad<StudentProfile[]>(STORAGE_KEYS.REGISTERED_STUDENTS, []);
+export const saveStoredRegisteredStudents = (students: StudentProfile[]) =>
+  safeSave(STORAGE_KEYS.REGISTERED_STUDENTS, students);
+
+export const getStoredStudentSession = (): StudentProfile | null =>
+  safeLoad<StudentProfile | null>(STORAGE_KEYS.STUDENT_SESSION, null);
+export const saveStoredStudentSession = (student: StudentProfile | null) =>
+  safeSave(STORAGE_KEYS.STUDENT_SESSION, student);
 
 export const getStoredAdminAuth = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -95,4 +115,36 @@ export const saveStoredAdminAuth = (isAuth: boolean) => {
   } catch {
     // Ignore
   }
+};
+
+// Utilities for admin data maintenance
+export const resetToCleanProductionSlate = (): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify([]));
+  localStorage.setItem(STORAGE_KEYS.DISBURSEMENTS, JSON.stringify([]));
+  localStorage.setItem(STORAGE_KEYS.SMS, JSON.stringify([]));
+  localStorage.setItem(
+    STORAGE_KEYS.LOGS,
+    JSON.stringify([
+      {
+        id: `log-${Date.now()}`,
+        action: 'DATABASE_PURGED',
+        performedBy: 'ISPSO Administrator',
+        target: 'System Database',
+        details: 'System database cleared to pristine state by ISPSO Administrator.',
+        timestamp: new Date().toISOString(),
+        severity: 'WARNING',
+        ipAddress: '127.0.0.1 (Terminal)',
+      },
+    ])
+  );
+  localStorage.removeItem(STORAGE_KEYS.STUDENT_SESSION);
+};
+
+export const loadDemoDataset = (): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(demoApps));
+  localStorage.setItem(STORAGE_KEYS.DISBURSEMENTS, JSON.stringify(demoDisbursements));
+  localStorage.setItem(STORAGE_KEYS.SMS, JSON.stringify(demoSmsMessages));
+  localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(demoAuditLogs));
 };

@@ -53,6 +53,7 @@ import {
 import { performDocumentVerification } from '@/lib/verification';
 import { SacSeal } from '@/components/SacSeal';
 import { AdminCopilotModal } from './AdminCopilotModal';
+import { resetToCleanProductionSlate, loadDemoDataset } from '@/lib/storage';
 
 interface AdminDashboardProps {
   applications: Application[];
@@ -220,13 +221,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newProgAmount, setNewProgAmount] = useState('7500');
   const [newProgSlots, setNewProgSlots] = useState('50');
 
-  // Sandbox Tester State
-  const [sandboxName, setSandboxName] = useState('Jhon Kylho Estrabo');
-  const [sandboxLrn, setSandboxLrn] = useState('115201140091');
-  const [sandboxOcrName, setSandboxOcrName] = useState('Jhon Kylho Estrabo');
-  const [sandboxOcrLrn, setSandboxOcrLrn] = useState('115201140091');
+  // Sandbox Tester State (clean diagnostic inputs)
+  const [sandboxName, setSandboxName] = useState('JUAN DELA CRUZ');
+  const [sandboxLrn, setSandboxLrn] = useState('115201140001');
+  const [sandboxOcrName, setSandboxOcrName] = useState('JUAN DELA CRUZ');
+  const [sandboxOcrLrn, setSandboxOcrLrn] = useState('115201140001');
   const [sandboxRawOcr, setSandboxRawOcr] = useState(
-    'ST. ANTHONY COLLEGE SAN JOSE ANTIQUE\nSTUDENT ID: STUDENT-JH-2026\nNAME: Jhon Kylho Estrabo\nDEPED LRN: 115201140091\nCOURSE: BSIT 3\nVALIDATED 1ST SEM'
+    'ST. ANTHONY COLLEGE SAN JOSE ANTIQUE\nSTUDENT ID: SAC-2026-001\nNAME: JUAN DELA CRUZ\nDEPED LRN: 115201140001\nCOURSE: BSIT 1\nVALIDATED 1ST SEM'
   );
   const [sandboxResult, setSandboxResult] = useState<ReturnType<typeof performDocumentVerification> | null>(null);
 
@@ -243,7 +244,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   ).length;
   const totalDisbursedAmount = disbursements
     .filter((d) => d.status === 'CLAIMED')
-    .reduce((sum, d) => sum + d.amount, 0) + 4250000;
+    .reduce((sum, d) => sum + d.amount, 0);
 
   const handleRunSandbox = () => {
     const res = performDocumentVerification({
@@ -741,40 +742,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div className="space-y-3">
-                  {applications
-                    .filter((a) => a.verification.issues.length > 0)
-                    .map((app) => (
-                      <div
-                        key={app.id}
-                        onClick={() => {
-                          setSelectedApp(app);
-                          setActiveTab('applications');
-                        }}
-                        className="cursor-pointer rounded-md border border-slate-200 p-3.5 hover:border-slate-300 hover:bg-slate-50 transition"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <p className="text-sm font-bold text-slate-900">{app.student.fullName}</p>
-                            <p className="text-sm text-slate-500">
-                              {app.student.course} • ID: {app.student.studentIdNumber} • LRN: {app.student.lrn}
-                            </p>
+                  {applications.filter((a) => a.verification.issues && a.verification.issues.length > 0).length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-slate-200 p-8 text-center text-slate-500">
+                      <ShieldCheck className="h-8 w-8 text-emerald-500 mx-auto mb-2" />
+                      <p className="text-xs font-bold text-slate-700">All Student Submissions Verified & Clear</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        No flagged fraud alerts or document name discrepancies currently detected.
+                      </p>
+                    </div>
+                  ) : (
+                    applications
+                      .filter((a) => a.verification.issues && a.verification.issues.length > 0)
+                      .map((app) => (
+                        <div
+                          key={app.id}
+                          onClick={() => {
+                            setSelectedApp(app);
+                            setActiveTab('applications');
+                          }}
+                          className="cursor-pointer rounded-md border border-slate-200 p-3.5 hover:border-slate-300 hover:bg-slate-50 transition"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <p className="text-sm font-bold text-slate-900">{app.student.fullName}</p>
+                              <p className="text-sm text-slate-500">
+                                {app.student.course} • ID: {app.student.studentIdNumber} • LRN: {app.student.lrn}
+                              </p>
+                            </div>
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-xs font-bold ${
+                                app.verification.status === 'DUPLICATE_FLAGGED' ||
+                                app.verification.status === 'NAME_MISMATCH'
+                                  ? 'bg-rose-100 text-rose-700'
+                                  : 'bg-amber-100 text-amber-800'
+                              }`}
+                            >
+                              {app.verification.status.replace(/_/g, ' ')}
+                            </span>
                           </div>
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-bold ${
-                              app.verification.status === 'DUPLICATE_FLAGGED' ||
-                              app.verification.status === 'NAME_MISMATCH'
-                                ? 'bg-rose-100 text-rose-700'
-                                : 'bg-amber-100 text-amber-800'
-                            }`}
-                          >
-                            {app.verification.status.replace(/_/g, ' ')}
-                          </span>
+                          <div className="mt-2 text-sm text-rose-600 font-medium">
+                            {app.verification.issues[0]}
+                          </div>
                         </div>
-                        <div className="mt-2 text-sm text-rose-600 font-medium">
-                          {app.verification.issues[0]}
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                  )}
                 </div>
               </div>
 
@@ -1002,8 +1013,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 bg-white">
-                    {applications
-                      .filter((app) => {
+                    {(() => {
+                      const filtered = applications.filter((app) => {
                         const q = appSearch.toLowerCase();
                         const matchesSearch =
                           app.student.fullName.toLowerCase().includes(q) ||
@@ -1014,10 +1025,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         const matchesStatus =
                           appFilterStatus === 'ALL' || app.status === appFilterStatus;
                         return matchesSearch && matchesProg && matchesStatus;
-                      })
-                      .map((app) => {
+                      });
+
+                      if (filtered.length === 0) {
                         return (
-                          <tr key={app.id} className="hover:bg-slate-50/80 transition">
+                          <tr>
+                            <td colSpan={8} className="px-6 py-12 text-center text-slate-500">
+                              <div className="flex flex-col items-center justify-center space-y-2">
+                                <FileCheck className="h-8 w-8 text-slate-300" />
+                                <p className="font-semibold text-slate-700">No student applications submitted yet</p>
+                                <p className="text-xs text-slate-400">
+                                  {applications.length === 0
+                                    ? 'System is live and ready for students to submit applications.'
+                                    : 'No applications match the current search filters.'}
+                                </p>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      }
+
+                      return filtered.map((app) => (
+                        <tr key={app.id} className="hover:bg-slate-50/80 transition">
                             <td className="px-4 py-3.5 font-mono font-bold text-slate-900">
                               {app.student.studentIdNumber}
                             </td>
@@ -1124,8 +1153,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </div>
                             </td>
                           </tr>
-                        );
-                      })}
+                        ));
+                      })()}
                   </tbody>
                 </table>
               </div>
@@ -2099,6 +2128,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            {/* Production Database Maintenance Controls */}
+            <div className="glass-card rounded-2xl p-6 border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Database & System Maintenance</h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Clear dummy test submissions or reload sample benchmarking records for coordinator onboarding.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Reset database to clean production state? This will clear test applications and student sessions.')) {
+                        resetToCleanProductionSlate();
+                        window.location.reload();
+                      }
+                    }}
+                    className="inline-flex items-center space-x-1.5 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-rose-700 transition shadow-sm"
+                  >
+                    <Ban className="h-3.5 w-3.5" />
+                    <span>Purge & Reset to Clean State</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Load sample demonstration submissions for staff training?')) {
+                        loadDemoDataset();
+                        window.location.reload();
+                      }
+                    }}
+                    className="inline-flex items-center space-x-1.5 rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-200 border border-slate-300 transition shadow-sm"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    <span>Load Demo Training Dataset</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

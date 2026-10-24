@@ -23,8 +23,8 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   onSuccess,
   onSwitchToStudent,
 }) => {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -142,22 +142,16 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
               </div>
             </div>
 
-            {/* Quick Fill Helper */}
-            <div className="rounded-md bg-sac-maroon-50/60 border border-sac-maroon-200/60 p-3 text-xs text-sac-maroon-900 flex items-center justify-between">
+            {/* Authorized Workstation Access Note */}
+            <div className="rounded-xl bg-sac-maroon-50/70 border border-sac-maroon-200/80 p-3.5 text-xs text-sac-maroon-950 flex items-center justify-between">
               <div>
-                <span className="font-bold">Demo account:</span>{' '}
-                <code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-sac-maroon-800 border border-sac-maroon-200">
-                  admin
-                </code>{' '}
-                /{' '}
-                <code className="bg-white px-1.5 py-0.5 rounded font-mono font-bold text-sac-maroon-800 border border-sac-maroon-200">
-                  admin123
-                </code>
+                <span className="font-bold">ISPSO Terminal:</span>{' '}
+                <span className="text-slate-600 font-mono">admin</span> / <span className="text-slate-600 font-mono">admin123</span>
               </div>
               <button
                 type="button"
                 onClick={handleQuickFill}
-                className="text-xs font-bold text-sac-maroon-800 hover:underline"
+                className="text-xs font-bold text-sac-maroon-800 hover:underline px-2 py-1 rounded-md bg-white border border-sac-maroon-200"
               >
                 Auto-fill
               </button>

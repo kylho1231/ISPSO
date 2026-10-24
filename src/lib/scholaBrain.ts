@@ -45,7 +45,7 @@ Your profile is officially linked to your \`@sac.edu.ph\` account and compliant 
       suggestedPrompts: [
         'When is my scholarship payout?',
         'What scholarships am I eligible for?',
-        'How do I view my Digital QR Pass?',
+        'What are the documentary requirements?',
       ],
     };
   }
@@ -175,14 +175,15 @@ Would you like me to guide you on how to apply for the Dean's List discount or c
 • **Venue:** **${myBatch.venue}** at St. Anthony’s College Campus
 
 ⚠️ **Important Releasing Reminders:**
-1. Present your **Digital Scholar Pass (Dynamic QR Code)** located in the PWA tab.
-2. Bring your **Validated SAC Student ID** (showing 1st Sem 2026-2027 validation sticker).
+1. Present your **Validated SAC Student ID** (showing 1st Sem 2026-2027 validation sticker).
+2. Bring your official Certificate of Registration (COR).
 3. Strictly **No Authorization Letters** allowed unless accompanied by an official medical certificate.
 
-You can open your **Digital QR Pass** in the app now so you're ready on Friday!`,
+Keep your validated student ID ready when claiming at the SAC Gym counters!`,
         timestamp,
         suggestedPrompts: [
-          'Show me my Digital QR Pass',
+          'What are the documentary requirements?',
+          'What are other scholarships in SAC?',
           'What if I don\'t have my validated ID?',
           'What are the office hours of ISPSO?',
         ],

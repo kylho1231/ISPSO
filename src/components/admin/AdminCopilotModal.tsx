@@ -87,14 +87,51 @@ export const AdminCopilotModal: React.FC<AdminCopilotModalProps> = ({
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
       if (q.includes('who applied') || q.includes('applying') || q.includes('applicants')) {
-        reply = `Here is a clear summary of recent applicant submissions:\n\n• **Jhon Kylho Estrabo** (BSIT 3) — Applying for **TDP-TES** with **GWA 1.38** (Pre-verified 100% ✓).\n• **Ana Marie Francisco** (BS Nursing 2) — Applying for **UniFAST TES** with **GWA 1.62** (Needs review: name spelling variant).\n• **Kristoff Tolentino** (BSBA 4) — Applying for **UniFAST TES** with **GWA 2.10** (Deficient: blurry semester sticker).\n• **Mark Villanueva** (Educ 3) — **Flagged**: Uploaded duplicate ID matching Jhon Kylho Estrabo.`;
+        if (applications.length === 0) {
+          reply = `There are currently no student applications submitted in the system. As students submit their applications through ScholarLink, their verified credentials will appear here dynamically.`;
+        } else {
+          const list = applications
+            .slice(0, 5)
+            .map(
+              (a) =>
+                `• **${a.student.fullName}** (${a.student.course}) — Applying for **${a.program.code}** (Status: **${a.status.replace(/_/g, ' ')}**)`
+            )
+            .join('\n');
+          reply = `Here is a summary of current applications (${applications.length} total):\n\n${list}`;
+        }
       } else if (q.includes('review') || q.includes('discrepanc') || q.includes('fraud') || q.includes('flag')) {
-        reply = `⚠️ **2 Applications require your attention:**\n\n1. **Mark Villanueva (Critical Flag):**\n   Uploaded an ID that shares the digital hash of another student (Jhon Kylho Estrabo). Name similarity is only 18%.\n   *Recommendation:* Deny application and keep on Denied List.\n\n2. **Ana Marie Francisco (Minor Variance):**\n   ID reads "ANA M. FRANCISCO" while email registration is "ANA MARIE FRANCISCO" (82% similarity). LRN is valid.\n   *Recommendation:* Safe to approve after quick visual glance.`;
+        const flagged = applications.filter((a) => a.verification.issues && a.verification.issues.length > 0);
+        if (flagged.length === 0) {
+          reply = `✅ All clear! There are currently no applications flagged with document discrepancies or fraud alerts.`;
+        } else {
+          const list = flagged
+            .slice(0, 5)
+            .map(
+              (a, idx) =>
+                `${idx + 1}. **${a.student.fullName} (${a.verification.status}):**\n   ${a.verification.issues[0]}`
+            )
+            .join('\n\n');
+          reply = `⚠️ **${flagged.length} Application(s) require your attention:**\n\n${list}`;
+        }
       } else if (q.includes('dean') || q.includes('top') || q.includes('honor') || q.includes('academic')) {
-        reply = `🏅 **Top Academic Achievers Eligible for Honor Grants:**\n\n1. **Angelica Soriano** (BSEd 2) — **GWA 1.20** (Rank 1 - Dean's List)\n2. **Maria Elena Santos** (BS Accountancy 3) — **GWA 1.25** (Rank 2)\n3. **Jhon Kylho Estrabo** (BSIT 3) — **GWA 1.38** (Rank 3 - Outstanding Standing)\n\nAll three satisfy the criteria for the **Anthonian Academic Excellence Scholarship** (₱7,500 / 100% tuition discount).`;
+        const honorStudents = applications
+          .filter((a) => a.gwa && a.gwa <= 1.75)
+          .sort((a, b) => a.gwa - b.gwa);
+        if (honorStudents.length === 0) {
+          reply = `No applicants with Dean's List GWA (1.75 or better) recorded yet.`;
+        } else {
+          const list = honorStudents
+            .slice(0, 5)
+            .map(
+              (a, idx) =>
+                `${idx + 1}. **${a.student.fullName}** (${a.student.course}) — **GWA ${a.gwa.toFixed(2)}** (Rank #${idx + 1})`
+            )
+            .join('\n');
+          reply = `🏅 **Top Academic Achievers from Application Pool:**\n\n${list}`;
+        }
       } else if (q.includes('payout') || q.includes('gym') || q.includes('release') || q.includes('schedule')) {
         const nextBatch = payoutBatches[0];
-        reply = `📢 **Upcoming Campus Payout Summary:**\n\n• **Program:** ${nextBatch?.programCode || 'TDP-TES'} (${nextBatch?.batchNumber || 'Batch 1'})\n• **Date & Time:** November 25, 2026 • 09:00 AM – 12:00 PM\n• **Location:** SAC Gymnasium (Counters 1 to 3)\n• **Beneficiaries:** ${nextBatch?.totalBeneficiaries || 40} students scheduled\n• **Cashier Preparation:** Cashiers will use the Rapid Counter QR Scanner. Verified students with a green QR pass can be disbursed immediately.`;
+        reply = `📢 **Upcoming Campus Payout Summary:**\n\n• **Program:** ${nextBatch?.programCode || 'TDP-TES'} (${nextBatch?.batchNumber || 'Batch 1'})\n• **Date & Time:** ${nextBatch?.scheduledDate || 'November 25, 2026'} • ${nextBatch?.startTime || '09:00 AM'} – ${nextBatch?.endTime || '12:00 PM'}\n• **Location:** ${nextBatch?.venue || 'SAC Gymnasium'}\n• **Beneficiaries:** ${nextBatch?.totalBeneficiaries || 0} students scheduled\n• **Cashier Preparation:** Cashiers verify student identity using validated SAC Student IDs.`;
       } else {
         reply = `I can help you audit applicants, check grade eligibility, or prepare releasing schedules. You can ask me:\n• *"Who applied today?"*\n• *"Which applications have document issues?"*\n• *"Who is on the Dean's List?"*\n• *"When is the next payout at SAC Gym?"*`;
       }
