@@ -33,6 +33,16 @@ import {
   saveStoredStudentSession,
 } from '@/lib/storage';
 import {
+  getApplications,
+  submitApplication,
+  getScholarshipPrograms,
+  getPayoutBatches,
+  getAnnouncements,
+  getSmsMessages,
+  sendSmsMessage,
+  upsertStudent,
+} from '@/lib/supabaseService';
+import {
   Download,
   GraduationCap,
   ShieldCheck,
@@ -61,15 +71,15 @@ export default function StudentHomePage() {
   const [canInstallPwa, setCanInstallPwa] = useState(false);
   const [pwaInstalledAlert, setPwaInstalledAlert] = useState(false);
 
-  // Data initialized with defaults and synchronized from storage
+  // Data initialized with defaults and synchronized from storage & Supabase
   const [applications, setApplications] = useState<Application[]>(initialApps);
-  const [programs] = useState<ScholarshipProgram[]>(initialPrograms);
+  const [programs, setPrograms] = useState<ScholarshipProgram[]>(initialPrograms);
   const [payoutBatches, setPayoutBatches] = useState<PayoutBatch[]>(initialBatches);
   const [announcements, setAnnouncements] = useState<Announcement[]>(initialAnnouncements);
   const [smsMessages, setSmsMessages] = useState<SmsMessage[]>(initialSmsMessages);
 
   useEffect(() => {
-    // Load student session and data
+    // Load student session and data immediately from local cache
     const savedStudent = getStoredStudentSession();
     setStudent(savedStudent);
 
@@ -77,6 +87,27 @@ export default function StudentHomePage() {
     setPayoutBatches(getStoredBatches());
     setAnnouncements(getStoredAnnouncements());
     setSmsMessages(getStoredSms());
+
+    // Asynchronously fetch from Supabase cloud database
+    async function loadCloudData() {
+      try {
+        const [apps, progs, batches, anns, sms] = await Promise.all([
+          getApplications(),
+          getScholarshipPrograms(),
+          getPayoutBatches(),
+          getAnnouncements(),
+          getSmsMessages(),
+        ]);
+        if (apps && apps.length > 0) setApplications(apps);
+        if (progs && progs.length > 0) setPrograms(progs);
+        if (batches && batches.length > 0) setPayoutBatches(batches);
+        if (anns && anns.length > 0) setAnnouncements(anns);
+        if (sms && sms.length > 0) setSmsMessages(sms);
+      } catch (err) {
+        console.warn('Supabase initial fetch fallback:', err);
+      }
+    }
+    loadCloudData();
 
     // Listen for PWA beforeinstallprompt
     const handleBeforeInstall = (e: Event) => {
@@ -114,10 +145,11 @@ export default function StudentHomePage() {
     }
   };
 
-  const handleLoginSuccess = (user: StudentProfile) => {
+  const handleLoginSuccess = async (user: StudentProfile) => {
     setStudent(user);
     saveStoredStudentSession(user);
     setAuthModalOpen(false);
+    await upsertStudent(user);
   };
 
   const handleLogout = () => {
@@ -125,7 +157,7 @@ export default function StudentHomePage() {
     saveStoredStudentSession(null);
   };
 
-  const handleSubmitApplication = (newApp: Partial<Application>) => {
+  const handleSubmitApplication = async (newApp: Partial<Application>) => {
     const app: Application = {
       ...(newApp as Application),
       id: `app-${Date.now()}`,
@@ -133,9 +165,10 @@ export default function StudentHomePage() {
     const updated = [app, ...applications];
     setApplications(updated);
     saveStoredApplications(updated);
+    await submitApplication(app);
   };
 
-  const handleSendStudentSms = (text: string) => {
+  const handleSendStudentSms = async (text: string) => {
     if (!student) return;
     const newSms: SmsMessage = {
       id: `sms-${Date.now()}`,
@@ -152,6 +185,7 @@ export default function StudentHomePage() {
     const updated = [...smsMessages, newSms];
     setSmsMessages(updated);
     saveStoredSms(updated);
+    await sendSmsMessage(newSms);
   };
 
   return (

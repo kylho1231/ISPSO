@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { SacSeal } from '@/components/SacSeal';
 import { StudentProfile } from '@/lib/types';
+import { getStudentByEmail, upsertStudent } from '@/lib/supabaseService';
 import { getStoredRegisteredStudents, saveStoredRegisteredStudents } from '@/lib/storage';
 
 interface StudentAuthModalProps {
@@ -51,24 +52,23 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
       const emailTrimmed = loginEmail.trim().toLowerCase();
 
       // Domain validation check for @sac.edu.ph
       if (!emailTrimmed.endsWith('@sac.edu.ph')) {
         setError('Only official @sac.edu.ph institutional email addresses are permitted.');
+        setIsLoading(false);
         return;
       }
 
-      // Check registered students
-      const registered = getStoredRegisteredStudents();
-      const existing = registered.find((s) => s.email.toLowerCase() === emailTrimmed);
+      // Check registered students via Supabase / local cache
+      const existing = await getStudentByEmail(emailTrimmed);
 
       if (existing) {
         onLoginSuccess(existing);
@@ -92,31 +92,36 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
           isProfileComplete: true,
         };
 
-        saveStoredRegisteredStudents([...registered, newProfile]);
-        onLoginSuccess(newProfile);
+        const saved = await upsertStudent(newProfile);
+        onLoginSuccess(saved);
       }
 
       onClose();
-    }, 400);
+    } catch (err: any) {
+      setError(err?.message || 'Login failed. Please verify credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
       const emailTrimmed = regEmail.trim().toLowerCase();
 
       if (!emailTrimmed.endsWith('@sac.edu.ph')) {
         setError('Registration is restricted to @sac.edu.ph institutional accounts.');
+        setIsLoading(false);
         return;
       }
 
       const cleanLrn = regLrn.replace(/\D/g, '');
       if (cleanLrn.length !== 12) {
         setError('Please enter a valid 12-digit DepEd Learner Reference Number (LRN).');
+        setIsLoading(false);
         return;
       }
 
@@ -133,12 +138,14 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
         isProfileComplete: true,
       };
 
-      const registered = getStoredRegisteredStudents();
-      saveStoredRegisteredStudents([...registered.filter((s) => s.email !== emailTrimmed), newStudent]);
-
-      onLoginSuccess(newStudent);
+      const saved = await upsertStudent(newStudent);
+      onLoginSuccess(saved);
       onClose();
-    }, 500);
+    } catch (err: any) {
+      setError(err?.message || 'Registration failed. Please review inputs.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

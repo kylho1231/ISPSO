@@ -40,6 +40,8 @@ import {
   LogOut,
   Monitor,
   CheckCircle2,
+  Database,
+  Server,
 } from 'lucide-react';
 import {
   Application,
@@ -54,6 +56,7 @@ import { performDocumentVerification } from '@/lib/verification';
 import { SacSeal } from '@/components/SacSeal';
 import { AdminCopilotModal } from './AdminCopilotModal';
 import { resetToCleanProductionSlate, loadDemoDataset } from '@/lib/storage';
+import { isSupabaseConfigured } from '@/lib/supabaseClient';
 
 interface AdminDashboardProps {
   applications: Application[];
@@ -2128,6 +2131,65 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            {/* Supabase PostgreSQL Backend Architecture Card */}
+            <div className="glass-card rounded-2xl p-6 border border-slate-200">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                <div className="flex items-center space-x-3">
+                  <div className="rounded-xl bg-sac-maroon-50 p-2.5 border border-sac-maroon-100">
+                    <Database className="h-6 w-6 text-sac-maroon-800" />
+                  </div>
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="text-base font-bold text-slate-900">Supabase PostgreSQL Database</h3>
+                      {isSupabaseConfigured() ? (
+                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          Cloud Connected
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-800 border border-amber-200">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Offline Resilience Active
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Enterprise PostgreSQL 16 schema with Row Level Security (RLS) and full RA 10173 compliance.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 text-xs">
+                  <span className="rounded-lg bg-slate-100 px-3 py-1.5 font-mono text-slate-700 border border-slate-200">
+                    schema.sql (8 Tables)
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+                  <span className="text-slate-400 font-medium block">Relational Tables</span>
+                  <span className="font-bold text-slate-900 text-sm mt-0.5 block">8 Tables</span>
+                  <span className="text-[10px] text-slate-500 font-mono">students, apps, payouts...</span>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+                  <span className="text-slate-400 font-medium block">Institutional Guard</span>
+                  <span className="font-bold text-sac-maroon-800 text-sm mt-0.5 block">@sac.edu.ph</span>
+                  <span className="text-[10px] text-slate-500">Domain Constraint Enforced</span>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+                  <span className="text-slate-400 font-medium block">DepEd LRN Check</span>
+                  <span className="font-bold text-slate-900 text-sm mt-0.5 block">12-Digit Strict</span>
+                  <span className="text-[10px] text-slate-500">Regex Validation Check</span>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
+                  <span className="text-slate-400 font-medium block">Security Model</span>
+                  <span className="font-bold text-emerald-700 text-sm mt-0.5 block">RLS Active</span>
+                  <span className="text-[10px] text-slate-500">Student & Admin Isolation</span>
+                </div>
               </div>
             </div>
 

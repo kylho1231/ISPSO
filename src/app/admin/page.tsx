@@ -38,21 +38,37 @@ import {
   getStoredAdminAuth,
   saveStoredAdminAuth,
 } from '@/lib/storage';
-import { Monitor, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { isSupabaseConfigured } from '@/lib/supabaseClient';
+import {
+  getApplications,
+  getScholarshipPrograms,
+  updateApplicationStatus,
+  getPayoutBatches,
+  createPayoutBatch,
+  getAnnouncements,
+  createAnnouncement,
+  getDisbursements,
+  recordDisbursement,
+  getSmsMessages,
+  sendSmsMessage,
+  getAuditLogs,
+  recordAuditLog,
+} from '@/lib/supabaseService';
+import { Monitor, ShieldCheck, ArrowLeft, Database } from 'lucide-react';
 
 export default function AdminPage() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
 
   // Core Data States with localStorage persistence and safe defaults
   const [applications, setApplications] = useState<Application[]>(initialApps);
-  const [programs] = useState<ScholarshipProgram[]>(initialPrograms);
+  const [programs, setPrograms] = useState<ScholarshipProgram[]>(initialPrograms);
   const [payoutBatches, setPayoutBatches] = useState<PayoutBatch[]>(initialBatches);
   const [announcements, setAnnouncements] = useState<Announcement[]>(initialAnnouncements);
   const [disbursements, setDisbursements] = useState<DisbursementRecord[]>(initialDisbursements);
   const [smsMessages, setSmsMessages] = useState<SmsMessage[]>(initialSmsMessages);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(initialAuditLogs);
 
-  // Load persisted state on mount
+  // Load persisted state on mount and sync with Supabase
   useEffect(() => {
     setIsAdminAuthenticated(getStoredAdminAuth());
     setApplications(getStoredApplications());
@@ -61,6 +77,30 @@ export default function AdminPage() {
     setDisbursements(getStoredDisbursements());
     setSmsMessages(getStoredSms());
     setAuditLogs(getStoredLogs());
+
+    async function loadCloudData() {
+      try {
+        const [apps, progs, batches, anns, disb, sms, logs] = await Promise.all([
+          getApplications(),
+          getScholarshipPrograms(),
+          getPayoutBatches(),
+          getAnnouncements(),
+          getDisbursements(),
+          getSmsMessages(),
+          getAuditLogs(),
+        ]);
+        if (apps && apps.length > 0) setApplications(apps);
+        if (progs && progs.length > 0) setPrograms(progs);
+        if (batches && batches.length > 0) setPayoutBatches(batches);
+        if (anns && anns.length > 0) setAnnouncements(anns);
+        if (disb && disb.length > 0) setDisbursements(disb);
+        if (sms && sms.length > 0) setSmsMessages(sms);
+        if (logs && logs.length > 0) setAuditLogs(logs);
+      } catch (err) {
+        console.warn('Supabase admin cloud sync fallback:', err);
+      }
+    }
+    loadCloudData();
   }, []);
 
   // Sync state to localStorage when changes occur
@@ -95,7 +135,7 @@ export default function AdminPage() {
   };
 
   // Admin updates application status (Approve, Deficient, Reject)
-  const handleUpdateApplicationStatus = (
+  const handleUpdateApplicationStatus = async (
     appId: string,
     status: Application['status'],
     remarks?: string
@@ -110,6 +150,7 @@ export default function AdminPage() {
         : app
     );
     updateApplications(updated);
+    await updateApplicationStatus(appId, status, remarks);
 
     const targetApp = updated.find((a) => a.id === appId);
     const newLog: AuditLog = {
@@ -123,16 +164,18 @@ export default function AdminPage() {
       ipAddress: '192.168.10.15 (Admin VLAN)',
     };
     updateLogs([newLog, ...auditLogs]);
+    await recordAuditLog(newLog);
   };
 
   // Admin broadcasts new announcement
-  const handleAddAnnouncement = (newAnn: Omit<Announcement, 'id' | 'publishedAt'>) => {
+  const handleAddAnnouncement = async (newAnn: Omit<Announcement, 'id' | 'publishedAt'>) => {
     const ann: Announcement = {
       ...newAnn,
       id: `ann-${Date.now()}`,
       publishedAt: new Date().toISOString(),
     };
     updateAnnouncements([ann, ...announcements]);
+    await createAnnouncement(ann);
 
     const newLog: AuditLog = {
       id: `log-${Date.now()}`,
@@ -145,16 +188,18 @@ export default function AdminPage() {
       ipAddress: '192.168.10.15 (Admin VLAN)',
     };
     updateLogs([newLog, ...auditLogs]);
+    await recordAuditLog(newLog);
   };
 
   // Admin schedules new payout batch
-  const handleAddPayoutBatch = (batchData: Omit<PayoutBatch, 'id' | 'claimedCount'>) => {
+  const handleAddPayoutBatch = async (batchData: Omit<PayoutBatch, 'id' | 'claimedCount'>) => {
     const batch: PayoutBatch = {
       ...batchData,
       id: `payout-${Date.now()}`,
       claimedCount: 0,
     };
     updateBatches([...payoutBatches, batch]);
+    await createPayoutBatch(batch);
 
     const newLog: AuditLog = {
       id: `log-${Date.now()}`,
@@ -167,6 +212,7 @@ export default function AdminPage() {
       ipAddress: '192.168.10.15 (Admin VLAN)',
     };
     updateLogs([newLog, ...auditLogs]);
+    await recordAuditLog(newLog);
   };
 
   // Admin / Releasing Desk scans and claims student stipend at counter
@@ -223,6 +269,7 @@ export default function AdminPage() {
     };
 
     updateDisbursements([newRecord, ...disbursements]);
+    recordDisbursement(newRecord);
 
     // Increment batch claimed count
     const updatedBatches = payoutBatches.map((b) =>
@@ -242,6 +289,7 @@ export default function AdminPage() {
       ipAddress: '192.168.10.15 (Admin VLAN)',
     };
     updateLogs([newLog, ...auditLogs]);
+    recordAuditLog(newLog);
 
     return {
       success: true,
@@ -251,7 +299,7 @@ export default function AdminPage() {
   };
 
   // ISPSO sends direct mobile SMS to a student
-  const handleSendAdminSms = (studentId: string, mobile: string, message: string) => {
+  const handleSendAdminSms = async (studentId: string, mobile: string, message: string) => {
     const targetStudent = applications.find((a) => a.student.id === studentId)?.student;
     const newSms: SmsMessage = {
       id: `sms-${Date.now()}`,
@@ -266,6 +314,7 @@ export default function AdminPage() {
       timestamp: new Date().toISOString(),
     };
     updateSms([...smsMessages, newSms]);
+    await sendSmsMessage(newSms);
 
     const newLog: AuditLog = {
       id: `log-${Date.now()}`,
@@ -278,9 +327,10 @@ export default function AdminPage() {
       ipAddress: '192.168.10.15 (Admin VLAN)',
     };
     updateLogs([newLog, ...auditLogs]);
+    await recordAuditLog(newLog);
   };
 
-  const handleAdminLoginSuccess = (user: string) => {
+  const handleAdminLoginSuccess = async (user: string) => {
     setIsAdminAuthenticated(true);
     saveStoredAdminAuth(true);
 
@@ -295,6 +345,7 @@ export default function AdminPage() {
       ipAddress: '192.168.10.15 (Admin VLAN)',
     };
     updateLogs([loginLog, ...auditLogs]);
+    await recordAuditLog(loginLog);
   };
 
   const handleAdminLogout = () => {
@@ -325,6 +376,25 @@ export default function AdminPage() {
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Supabase PostgreSQL Backend Status */}
+            {isSupabaseConfigured() ? (
+              <span
+                className="hidden md:inline-flex items-center space-x-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 border border-emerald-200 shadow-sm"
+                title="Connected to Supabase Cloud PostgreSQL database"
+              >
+                <Database className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Supabase: PostgreSQL</span>
+              </span>
+            ) : (
+              <span
+                className="hidden md:inline-flex items-center space-x-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800 border border-amber-200 shadow-sm"
+                title="Running in resilient local cache mode. Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to link live PostgreSQL."
+              >
+                <Database className="h-3.5 w-3.5 text-amber-600" />
+                <span>Supabase: Offline Cache</span>
+              </span>
+            )}
+
             <div className="hidden sm:flex items-center space-x-1.5 text-xs text-slate-500 font-medium bg-slate-100 rounded-lg px-2.5 py-1">
               <Monitor className="h-3.5 w-3.5 text-slate-600" />
               <span>Desktop PC Station</span>
