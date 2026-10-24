@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import {
   GraduationCap,
-  QrCode,
   ShieldCheck,
   Calendar,
   Clock,
@@ -25,7 +24,6 @@ import {
   Send,
   Phone,
   Award,
-  ArrowRight,
 } from 'lucide-react';
 import {
   StudentProfile,
@@ -60,7 +58,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
   onSubmitApplication,
   onSendStudentSms,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'apply' | 'pass' | 'notices' | 'sms'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'apply' | 'notices' | 'sms'>('home');
   const [isScholaOpen, setIsScholaOpen] = useState(false);
   const [replySmsText, setReplySmsText] = useState('');
 
@@ -179,11 +177,11 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setActiveTab('pass')}
+              onClick={() => setActiveTab('apply')}
               className="inline-flex items-center space-x-1.5 rounded-xl bg-sac-maroon-800 px-4 py-2.5 text-xs font-bold text-sac-gold-400 hover:bg-sac-maroon-900 shadow-md transition"
             >
-              <QrCode className="h-4 w-4" />
-              <span>View Payout Pass</span>
+              <GraduationCap className="h-4 w-4" />
+              <span>Browse Grants</span>
             </button>
           </div>
         </div>
@@ -194,7 +192,6 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         {[
           { id: 'home', label: 'My Grant Overview', icon: Award },
           { id: 'apply', label: 'Scholarships Catalog', icon: GraduationCap },
-          { id: 'pass', label: 'Payout Pass', icon: QrCode },
           { id: 'notices', label: 'Campus Bulletins', icon: Calendar },
           { id: 'sms', label: 'ISPSO SMS Hotline', icon: Phone },
         ].map((tab) => {
@@ -317,17 +314,17 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                           {new Date(myPayoutBatch.scheduledDate + 'T00:00:00').toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })} · {myPayoutBatch.startTime} – {myPayoutBatch.endTime}
                         </p>
                         <p className="mt-0.5 text-xs text-slate-600 font-medium">
-                          Venue: <span className="font-bold text-slate-900">{myPayoutBatch.venue}</span> • Bring Validated SAC ID &amp; QR Pass.
+                          Venue: <span className="font-bold text-slate-900">{myPayoutBatch.venue}</span> • Bring your validated SAC Student ID.
                         </p>
                       </div>
                     </div>
 
                     <button
-                      onClick={() => setActiveTab('pass')}
+                      onClick={() => setActiveTab('notices')}
                       className="inline-flex items-center space-x-1.5 rounded-xl bg-sac-maroon-800 px-4 py-2.5 text-xs font-bold text-sac-gold-400 hover:bg-sac-maroon-900 transition shadow-sm shrink-0"
                     >
-                      <QrCode className="h-4 w-4" />
-                      <span>Open Payout Pass &rarr;</span>
+                      <Calendar className="h-4 w-4" />
+                      <span>View Payout Notice &rarr;</span>
                     </button>
                   </div>
                 </div>
@@ -384,98 +381,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       )}
 
       {/* ============================================================== */}
-      {/* SUBTAB 2: DIGITAL QR CLAIM PASS (High-Fidelity Security Pass)  */}
-      {/* ============================================================== */}
-      {activeTab === 'pass' && myApp?.status !== 'APPROVED' && (
-        <div className="glass-card rounded-3xl p-8 text-center text-sm text-slate-600 space-y-2">
-          <Clock className="h-8 w-8 text-amber-600 mx-auto" />
-          <p className="font-bold text-slate-800">Your payout pass is being processed</p>
-          <p className="text-xs text-slate-500">Your digital pass will be generated once your application is formally certified by the ISPSO head.</p>
-        </div>
-      )}
-      {activeTab === 'pass' && myApp?.status === 'APPROVED' && (
-        <div className="space-y-4 max-w-lg mx-auto">
-          <div className="glass-card gold-gradient-border rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-xl relative overflow-hidden">
-            {/* Watermark */}
-            <div className="absolute right-0 bottom-0 translate-x-8 translate-y-8 opacity-5 pointer-events-none">
-              <SacSeal size={180} />
-            </div>
-
-            <div>
-              <div className="inline-flex items-center space-x-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-300">
-                <CheckCircle2 className="h-3.5 w-3.5" />
-                <span>Verified Beneficiary Pass</span>
-              </div>
-              <h3 className="mt-2.5 text-lg font-black font-serif text-slate-900">
-                St. Anthony’s College • ISPSO
-              </h3>
-              <p className="text-xs text-slate-500 font-medium">
-                Official Campus Releasing Voucher • AY 2026–2027 1st Semester
-              </p>
-            </div>
-
-            {/* Dynamic QR Code Mockup with Central Seal */}
-            <div className="mx-auto flex h-56 w-56 flex-col items-center justify-center rounded-2xl bg-white p-3.5 border-4 border-sac-maroon-800 shadow-lg relative">
-              <div className="grid grid-cols-6 gap-1.5 w-full h-full p-2 bg-slate-950 rounded-xl">
-                {Array.from({ length: 36 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-sm transition-opacity duration-500 ${
-                      (i * 7) % 3 === 0 || i % 5 === 0 ? 'bg-white' : 'bg-transparent'
-                    }`}
-                  />
-                ))}
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-11 w-11 rounded-full bg-white p-1 shadow-md flex items-center justify-center border-2 border-sac-gold-400">
-                  <SacSeal className="h-9 w-9" size={36} />
-                </div>
-              </div>
-            </div>
-
-            {/* Student & Grant Data Table */}
-            <div className="rounded-2xl bg-slate-50/90 p-4 font-mono text-xs text-slate-700 space-y-1.5 text-left border border-slate-200">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">BENEFICIARY:</span>
-                <span className="font-bold text-slate-900">{student.fullName}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">STUDENT ID:</span>
-                <span className="font-bold text-slate-900">{student.studentIdNumber}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">DEPED LRN:</span>
-                <span className="font-bold text-sac-maroon-800">{student.lrn}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">PROGRAM:</span>
-                <span className="font-bold text-slate-900">{myApp?.program.code || 'TDP-TES'}</span>
-              </div>
-              <div className="flex justify-between items-center pt-1 border-t border-slate-200">
-                <span className="text-slate-500">STIPEND AMOUNT:</span>
-                <span className="font-black text-sm text-emerald-700">₱{(myApp?.program.grantAmount || 7500).toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-xs pt-1">
-              <span className="text-slate-400 text-[11px] font-mono">
-                Ref: <strong className="text-slate-700">SAC-SEC-2026-482910</strong>
-              </span>
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="inline-flex items-center space-x-1 font-bold text-sac-maroon-800 hover:underline"
-              >
-                <span>Print Pass</span>
-                <ArrowRight className="h-3 w-3" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ============================================================== */}
-      {/* SUBTAB 3: APPLY FOR SCHOLARSHIP                                */}
+      {/* SUBTAB 2: APPLY FOR SCHOLARSHIP                                */}
       {/* ============================================================== */}
       {activeTab === 'apply' && (
         <div className="space-y-4">
@@ -859,7 +765,6 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
         programs={programs}
         payoutBatches={payoutBatches}
         onOpenApplyTab={() => setActiveTab('apply')}
-        onOpenPassTab={() => setActiveTab('pass')}
       />
     </div>
   );

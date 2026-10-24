@@ -43,7 +43,7 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
-  QrCode,
+  Award,
   MessageSquare,
   FileText,
   Users,
@@ -313,11 +313,11 @@ export default function StudentHomePage() {
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="glass-card rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-sac-maroon-300">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sac-maroon-100 text-sac-maroon-800 mb-4 shadow-sm">
-                    <QrCode className="h-6 w-6" />
+                    <Award className="h-6 w-6" />
                   </div>
-                  <h3 className="font-bold text-slate-900 text-base">Digital QR Payout Pass</h3>
+                  <h3 className="font-bold text-slate-900 text-base">Centralized Grant Tracking</h3>
                   <p className="mt-2 text-xs text-slate-500 leading-relaxed font-medium">
-                    Fast stipend claiming at the SAC Gymnasium releasing counters without printing bulky vouchers.
+                    Monitor your scholarship applications, verification milestones, and campus release notices in one unified portal.
                   </p>
                 </div>
 

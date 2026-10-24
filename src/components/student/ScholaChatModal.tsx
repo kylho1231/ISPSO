@@ -24,7 +24,6 @@ interface ScholaChatModalProps {
   programs: ScholarshipProgram[];
   payoutBatches: PayoutBatch[];
   onOpenApplyTab?: () => void;
-  onOpenPassTab?: () => void;
 }
 
 export const ScholaChatModal: React.FC<ScholaChatModalProps> = ({
@@ -35,7 +34,6 @@ export const ScholaChatModal: React.FC<ScholaChatModalProps> = ({
   programs,
   payoutBatches,
   onOpenApplyTab,
-  onOpenPassTab,
 }) => {
   const [messages, setMessages] = useState<ScholaChatMessage[]>([
     {
