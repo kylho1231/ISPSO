@@ -53,14 +53,20 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-slate-50">
-      <div className="w-full max-w-md">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-16 sac-hero-mesh relative overflow-hidden">
+      <div className="absolute inset-0 sac-grid-overlay opacity-50 pointer-events-none" />
+      <div className="relative w-full max-w-md">
         <div className="mb-6 text-center flex flex-col items-center">
-          <SacSeal className="h-16 w-16 mb-3 drop-shadow-md" size={64} />
-          <span className="rounded-full bg-sac-maroon-100 px-3 py-1 text-xs font-black tracking-wider uppercase text-sac-maroon-900 border border-sac-maroon-200">
+          <div className="relative mb-3">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sac-maroon-800 to-sac-gold-500 blur-xl opacity-20 scale-125" />
+            <div className="relative rounded-full p-2 bg-white/90 backdrop-blur shadow-lg border border-white/80">
+              <SacSeal className="h-16 w-16 drop-shadow-md" size={64} />
+            </div>
+          </div>
+          <span className="rounded-full bg-white/90 backdrop-blur px-3.5 py-1 text-xs font-black tracking-wider uppercase text-sac-maroon-900 border border-sac-maroon-200 shadow-sm">
             St. Anthony’s College • ISPSO
           </span>
-          <h1 className="mt-2 font-serif text-3xl font-bold text-slate-900">
+          <h1 className="mt-2.5 font-serif text-3xl font-black text-slate-900">
             Administrative Console
           </h1>
           <p className="mt-1.5 text-xs leading-relaxed text-slate-500 max-w-sm font-medium">
@@ -69,7 +75,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
         </div>
 
         {/* Login Card */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+        <div className="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/90">
           <div className="mb-5 flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-base font-bold text-slate-900">Staff Sign In</h2>

@@ -25,6 +25,7 @@ import {
   Send,
   Phone,
   Award,
+  ArrowRight,
 } from 'lucide-react';
 import {
   StudentProfile,
@@ -137,127 +138,220 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
   const content = (
     <div className="space-y-6">
-      <section className="border-b border-slate-200 pb-6">
-        <p className="text-sm font-semibold text-sac-maroon-800">Student portal</p>
-        <h1 className="mt-2 font-serif text-3xl text-slate-900">My scholarship</h1>
-        <p className="mt-2 text-sm leading-relaxed text-slate-600">Check your application, find scholarship opportunities, and view updates from ISPSO.</p>
-        <dl className="mt-5 grid gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-3">
-          <div><dt className="text-sm text-slate-500">Student name</dt><dd className="mt-1 text-sm font-semibold">{student.fullName}</dd></div>
-          <div><dt className="text-sm text-slate-500">Student number</dt><dd className="mt-1 text-sm font-semibold">{student.studentIdNumber}</dd></div>
-          <div><dt className="text-sm text-slate-500">Course and year</dt><dd className="mt-1 text-sm font-semibold">{student.course} · Year {student.yearLevel}</dd></div>
-        </dl>
+      {/* ELEVATED STUDENT PROFILE BANNER (GetLayers Standard) */}
+      <section className="glass-card rounded-3xl p-6 relative overflow-hidden border border-slate-200/90 shadow-sm">
+        <div className="absolute right-0 top-0 translate-x-10 -translate-y-6 opacity-5 pointer-events-none">
+          <SacSeal size={200} />
+        </div>
+        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sac-maroon-800 text-sac-gold-400 font-serif font-black text-2xl shadow-md border-2 border-sac-gold-400">
+                JE
+              </div>
+              <div className="absolute -bottom-1 -right-1 rounded-full bg-emerald-500 p-1 text-white ring-2 ring-white" title="Verified Anthonian Scholar">
+                <ShieldCheck className="h-3.5 w-3.5" />
+              </div>
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="font-serif text-2xl font-black text-slate-900">{student.fullName}</h1>
+                <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-200">
+                  Active Scholar
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                {student.course} • Year {student.yearLevel} • {student.email}
+              </p>
+              <div className="mt-2.5 flex flex-wrap gap-2 text-xs">
+                <span className="rounded-lg bg-slate-100 px-2.5 py-1 font-mono font-bold text-slate-700">
+                  ID: {student.studentIdNumber}
+                </span>
+                <span className="rounded-lg bg-sac-maroon-50 px-2.5 py-1 font-mono font-bold text-sac-maroon-900 border border-sac-maroon-200">
+                  LRN: {student.lrn}
+                </span>
+                <span className="rounded-lg bg-amber-50 px-2.5 py-1 font-bold text-amber-900 border border-amber-200">
+                  GWA: {student.gwa} (Dean&apos;s List Eligible)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab('pass')}
+              className="inline-flex items-center space-x-1.5 rounded-xl bg-sac-maroon-800 px-4 py-2.5 text-xs font-bold text-sac-gold-400 hover:bg-sac-maroon-900 shadow-md transition"
+            >
+              <QrCode className="h-4 w-4" />
+              <span>View Payout Pass</span>
+            </button>
+          </div>
+        </div>
       </section>
 
-      <nav aria-label="Student services" className="flex flex-wrap gap-1 border-b border-slate-300">
+      {/* MODERNIZED TAB PILL NAVIGATION */}
+      <nav aria-label="Student services" className="flex flex-wrap gap-1.5 p-1.5 bg-slate-200/70 rounded-2xl w-fit">
         {[
-          { id: 'home', label: 'Overview' },
-          { id: 'apply', label: 'Scholarships' },
-          { id: 'pass', label: 'Payout pass' },
-          { id: 'notices', label: 'Announcements' },
-          { id: 'sms', label: 'Messages' },
-        ].map((tab) => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id as typeof activeTab)} aria-current={activeTab === tab.id ? 'page' : undefined}
-            className={`border-b-2 px-3 py-3 text-sm font-semibold ${activeTab === tab.id ? 'border-sac-maroon-800 text-sac-maroon-800' : 'border-transparent text-slate-600 hover:bg-white'}`}>
-            {tab.label}
-          </button>
-        ))}
+          { id: 'home', label: 'My Grant Overview', icon: Award },
+          { id: 'apply', label: 'Scholarships Catalog', icon: GraduationCap },
+          { id: 'pass', label: 'Payout Pass', icon: QrCode },
+          { id: 'notices', label: 'Campus Bulletins', icon: Calendar },
+          { id: 'sms', label: 'ISPSO SMS Hotline', icon: Phone },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+              aria-current={isActive ? 'page' : undefined}
+              className={`inline-flex items-center space-x-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all duration-200 ${
+                isActive
+                  ? 'bg-white text-sac-maroon-900 shadow-sm border border-slate-200/80 scale-[1.02]'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Icon className={`h-4 w-4 ${isActive ? 'text-sac-maroon-800' : 'text-slate-400'}`} />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </nav>
 
       {/* ============================================================== */}
       {/* SUBTAB 1: MY ACTIVE SCHOLARSHIP & PAYOUT TRACKER               */}
       {/* ============================================================== */}
       {activeTab === 'home' && (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-serif text-xl text-slate-900">Application status</h2>
-            <button onClick={() => setActiveTab('apply')} className="rounded bg-sac-maroon-800 px-4 py-2 text-sm font-semibold text-white hover:bg-sac-maroon-900">Browse scholarships</button>
+            <div>
+              <h2 className="font-serif text-xl font-bold text-slate-900">Current Grant Status</h2>
+              <p className="text-xs text-slate-500">Official record for Academic Year 2026–2027 1st Semester</p>
+            </div>
+            <button onClick={() => setActiveTab('apply')} className="rounded-xl bg-sac-maroon-800 px-4 py-2 text-xs font-bold text-white hover:bg-sac-maroon-900 transition shadow-sm">Browse Other Grants &rarr;</button>
           </div>
-          {!myApp && <p className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">You have not submitted an application. Browse scholarships to review the requirements and apply.</p>}
+          {!myApp && <p className="glass-card rounded-2xl p-6 text-sm text-slate-600">You have not submitted an application. Browse scholarships to review the requirements and apply.</p>}
 
-          {/* Active Grant Status Card */}
-          {myApp && <div className="rounded-lg border border-slate-200 bg-white p-5 ">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="rounded-md bg-sac-maroon-100 px-2 py-0.5 text-xs font-bold text-sac-maroon-800">
-                  {myApp?.program.code || 'TDP-TES'}
-                </span>
-                <h3 className="mt-2 text-base font-bold text-slate-900">
-                  {myApp?.program.name || 'Tulong Dunong Program (TDP-TES)'}
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Provider: {myApp?.program.provider || 'CHED / UniFAST'} • AY 2026-2027 1st Sem
-                </p>
-              </div>
-              <span className={`rounded border px-3 py-1 text-sm font-semibold ${myApp.status === 'APPROVED' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-amber-200 bg-amber-50 text-amber-900'}`}>
-                {myApp.status === 'APPROVED' ? 'Approved' : myApp.status === 'DEFICIENT' ? 'Documents needed' : myApp.status === 'REJECTED' ? 'Not approved' : 'Under review'}
-              </span>
-            </div>
-
-            <div className="mt-4 rounded-md bg-slate-50 p-3.5 text-sm border border-slate-100">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">Stipend Subsidy:</span>
-                <span className="text-sm font-semibold text-slate-900">
-                  ₱{(myApp?.program.grantAmount || 7500).toLocaleString()}
-                </span>
-              </div>
-              <div className="mt-1 flex justify-between items-center">
-                <span className="text-slate-500">Document check:</span>
-                <span className="font-semibold text-slate-700">
-                  {myApp.verification.status === 'VERIFIED' ? 'Details match' : 'Staff review needed'}
-                </span>
-              </div>
-            </div>
-
-            {/* Next Payout Alert Box (Replaces Facebook Posts) */}
-            {myApp.status === 'APPROVED' && myPayoutBatch ? <div className="mt-4 rounded-lg bg-slate-50 p-4 border border-slate-200">
-              <div className="flex items-start space-x-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center text-sac-maroon-800">
-                  <Calendar className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-bold  text-sac-maroon-950">
-                      Payout schedule
-                    </h4>
-                    <span className="rounded-full bg-sac-gold-200 px-2 py-0.5 text-xs font-bold text-sac-gold-900">
-                      {myPayoutBatch.batchNumber}
+          {/* Active Grant Status Card with Visual Disbursement Stepper */}
+          {myApp && (
+            <div className="glass-card rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="rounded-full bg-sac-maroon-100 px-3 py-1 text-xs font-bold text-sac-maroon-900 border border-sac-maroon-200">
+                      {myApp?.program.code || 'TDP-TES'}
                     </span>
+                    <span className="text-xs text-slate-500 font-medium">AY 2026-2027 1st Sem</span>
                   </div>
-                  <p className="mt-1 text-sm font-bold text-slate-900">
-                    {new Date(myPayoutBatch.scheduledDate + 'T00:00:00').toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })} · {myPayoutBatch.startTime} – {myPayoutBatch.endTime}
+                  <h3 className="mt-2 text-xl font-bold text-slate-900">
+                    {myApp?.program.name || 'Tulong Dunong Program (TDP-TES)'}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Administered by: <strong className="text-slate-700 font-semibold">{myApp?.program.provider || 'CHED / UniFAST'}</strong> • San Jose de Buenavista
                   </p>
-                  <p className="mt-0.5 text-sm text-slate-600">
-                    Venue: <span className="font-bold text-slate-800">{myPayoutBatch.venue}</span>
-                  </p>
-                  <div className="mt-2 text-xs text-slate-600">
-                    Requirements: Validated SAC Student ID &amp; Digital QR Pass.
+                </div>
+                <div className="text-right">
+                  <span className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-black border ${myApp.status === 'APPROVED' ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-amber-300 bg-amber-50 text-amber-900'}`}>
+                    {myApp.status === 'APPROVED' ? '● Active Approved Grant' : myApp.status === 'DEFICIENT' ? '▲ Action Required' : myApp.status === 'REJECTED' ? '✕ Disqualified' : '◌ Under Review'}
+                  </span>
+                  <div className="mt-2 text-2xl font-black text-slate-900">
+                    ₱{(myApp?.program.grantAmount || 7500).toLocaleString()}
+                    <span className="text-xs text-slate-500 font-medium"> / semester</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-3 pt-3 border-t border-sac-gold-200 flex justify-end">
-                <button
-                  onClick={() => setActiveTab('pass')}
-                  className="rounded-md bg-sac-maroon-800 px-3.5 py-1.5 text-sm font-bold text-white hover:bg-sac-maroon-900 transition flex items-center space-x-1.5 "
-                >
-                  <QrCode className="h-3.5 w-3.5" />
-                  <span>View payout pass &rarr;</span>
-                </button>
+              {/* 4-STEP DISBURSEMENT PROGRESS PIPELINE */}
+              <div className="pt-2 border-t border-slate-100">
+                <p className="text-xs font-bold text-slate-700 mb-3">Disbursement Lifecycle Status:</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="rounded-xl bg-emerald-50/80 border border-emerald-200 p-2.5 text-xs">
+                    <div className="flex items-center space-x-1.5 text-emerald-700 font-bold">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>1. Applied</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-0.5">Application filed online</p>
+                  </div>
+                  <div className="rounded-xl bg-emerald-50/80 border border-emerald-200 p-2.5 text-xs">
+                    <div className="flex items-center space-x-1.5 text-emerald-700 font-bold">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>2. Pre-Verified</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-0.5">LRN &amp; ID verified 100%</p>
+                  </div>
+                  <div className="rounded-xl bg-emerald-50/80 border border-emerald-200 p-2.5 text-xs">
+                    <div className="flex items-center space-x-1.5 text-emerald-700 font-bold">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>3. Approved</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-0.5">Certified by ISPSO Head</p>
+                  </div>
+                  <div className="rounded-xl bg-sac-gold-100/90 border border-sac-gold-300 p-2.5 text-xs">
+                    <div className="flex items-center space-x-1.5 text-sac-gold-950 font-bold">
+                      <Clock className="h-3.5 w-3.5 text-sac-maroon-800" />
+                      <span>4. Releasing Ready</span>
+                    </div>
+                    <p className="text-[10px] text-slate-600 mt-0.5">SAC Gym Counter 1-3</p>
+                  </div>
+                </div>
               </div>
-            </div> : <p className="mt-4 border-t border-slate-200 pt-4 text-sm text-slate-600">{myApp.deficiencyRemarks || 'Payout details will appear once your application is approved and a schedule is available.'}</p>}
-          </div>}
+
+              {/* Next Payout Alert Box (Replaces Facebook Posts) */}
+              {myApp.status === 'APPROVED' && myPayoutBatch ? (
+                <div className="rounded-2xl bg-gradient-to-r from-sac-maroon-50/70 via-amber-50/50 to-sac-gold-50/70 p-5 border border-sac-maroon-200/80">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-start space-x-3.5">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sac-maroon-800 text-sac-gold-400 shadow-sm">
+                        <Calendar className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h4 className="text-sm font-bold text-sac-maroon-950">
+                            Upcoming Payout Schedule
+                          </h4>
+                          <span className="rounded-full bg-sac-gold-200 px-2 py-0.5 text-[10px] font-bold text-sac-gold-900 border border-sac-gold-300">
+                            {myPayoutBatch.batchNumber}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-sm font-bold text-slate-900">
+                          {new Date(myPayoutBatch.scheduledDate + 'T00:00:00').toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' })} · {myPayoutBatch.startTime} – {myPayoutBatch.endTime}
+                        </p>
+                        <p className="mt-0.5 text-xs text-slate-600 font-medium">
+                          Venue: <span className="font-bold text-slate-900">{myPayoutBatch.venue}</span> • Bring Validated SAC ID &amp; QR Pass.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setActiveTab('pass')}
+                      className="inline-flex items-center space-x-1.5 rounded-xl bg-sac-maroon-800 px-4 py-2.5 text-xs font-bold text-sac-gold-400 hover:bg-sac-maroon-900 transition shadow-sm shrink-0"
+                    >
+                      <QrCode className="h-4 w-4" />
+                      <span>Open Payout Pass &rarr;</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-4 border-t border-slate-200 pt-4 text-xs text-slate-600">{myApp.deficiencyRemarks || 'Payout details will appear once your application is approved and a schedule is available.'}</p>
+              )}
+            </div>
+          )}
 
           {/* Quick Scholarships Explorer */}
-          <div className="rounded-lg border border-slate-200 bg-white p-5  space-y-3">
+          <div className="glass-card rounded-3xl p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold  text-slate-500">
-                Scholarship opportunities ({programs.length})
-              </h3>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Available Scholarship Programs ({programs.length})
+                </h3>
+                <p className="text-xs text-slate-500">Explore financial assistance matching your degree program</p>
+              </div>
               <button
                 onClick={() => setActiveTab('apply')}
-                className="text-sm font-bold text-sac-maroon-800 hover:underline"
+                className="text-xs font-bold text-sac-maroon-800 hover:underline flex items-center space-x-1"
               >
-                View Catalog &rarr;
+                <span>View Full Catalog</span>
+                <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
 
@@ -290,69 +384,92 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
       )}
 
       {/* ============================================================== */}
-      {/* SUBTAB 2: DIGITAL QR CLAIM PASS                                */}
+      {/* SUBTAB 2: DIGITAL QR CLAIM PASS (High-Fidelity Security Pass)  */}
       {/* ============================================================== */}
-      {activeTab === 'pass' && myApp?.status !== 'APPROVED' && <p className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">Your payout pass will be available after your application is approved.</p>}
+      {activeTab === 'pass' && myApp?.status !== 'APPROVED' && (
+        <div className="glass-card rounded-3xl p-8 text-center text-sm text-slate-600 space-y-2">
+          <Clock className="h-8 w-8 text-amber-600 mx-auto" />
+          <p className="font-bold text-slate-800">Your payout pass is being processed</p>
+          <p className="text-xs text-slate-500">Your digital pass will be generated once your application is formally certified by the ISPSO head.</p>
+        </div>
+      )}
       {activeTab === 'pass' && myApp?.status === 'APPROVED' && (
-        <div className="space-y-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-6  text-center space-y-4">
+        <div className="space-y-4 max-w-lg mx-auto">
+          <div className="glass-card gold-gradient-border rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-xl relative overflow-hidden">
+            {/* Watermark */}
+            <div className="absolute right-0 bottom-0 translate-x-8 translate-y-8 opacity-5 pointer-events-none">
+              <SacSeal size={180} />
+            </div>
+
             <div>
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 inline-flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Approved scholarship
-              </span>
-              <h3 className="mt-2 text-lg font-semibold text-slate-900">
-                St. Anthony’s College ISPSO
+              <div className="inline-flex items-center space-x-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-300">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Verified Beneficiary Pass</span>
+              </div>
+              <h3 className="mt-2.5 text-lg font-black font-serif text-slate-900">
+                St. Anthony’s College • ISPSO
               </h3>
-              <p className="text-sm text-slate-500">
-                Sample payout pass. Contact ISPSO for the official claiming requirements.
+              <p className="text-xs text-slate-500 font-medium">
+                Official Campus Releasing Voucher • AY 2026–2027 1st Semester
               </p>
             </div>
 
-            {/* Dynamic QR Code Mockup */}
-            <div className="mx-auto flex h-52 w-52 flex-col items-center justify-center rounded-lg bg-white p-3 border-4 border-sac-maroon-800  relative">
-              <div className="grid grid-cols-6 gap-1.5 w-full h-full p-2 bg-slate-950 rounded-md">
+            {/* Dynamic QR Code Mockup with Central Seal */}
+            <div className="mx-auto flex h-56 w-56 flex-col items-center justify-center rounded-2xl bg-white p-3.5 border-4 border-sac-maroon-800 shadow-lg relative">
+              <div className="grid grid-cols-6 gap-1.5 w-full h-full p-2 bg-slate-950 rounded-xl">
                 {Array.from({ length: 36 }).map((_, i) => (
                   <div
                     key={i}
-                    className={`rounded-sm ${
+                    className={`rounded-sm transition-opacity duration-500 ${
                       (i * 7) % 3 === 0 || i % 5 === 0 ? 'bg-white' : 'bg-transparent'
                     }`}
                   />
                 ))}
               </div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="h-10 w-10 rounded-md bg-white p-1  flex items-center justify-center">
-                  <SacSeal className="h-8 w-8" size={32} />
+                <div className="h-11 w-11 rounded-full bg-white p-1 shadow-md flex items-center justify-center border-2 border-sac-gold-400">
+                  <SacSeal className="h-9 w-9" size={36} />
                 </div>
               </div>
             </div>
 
-            <div className="rounded-md bg-slate-50 p-3 font-mono text-sm text-slate-700 space-y-1 text-left border border-slate-200">
-              <div className="flex justify-between">
-                <span className="text-slate-500">STUDENT:</span>
+            {/* Student & Grant Data Table */}
+            <div className="rounded-2xl bg-slate-50/90 p-4 font-mono text-xs text-slate-700 space-y-1.5 text-left border border-slate-200">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">BENEFICIARY:</span>
                 <span className="font-bold text-slate-900">{student.fullName}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">ID NUMBER:</span>
+              <div className="flex justify-between items-center">
+                <span className="text-slate-500">STUDENT ID:</span>
                 <span className="font-bold text-slate-900">{student.studentIdNumber}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">DEPED LRN:</span>
                 <span className="font-bold text-sac-maroon-800">{student.lrn}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-slate-500">PROGRAM:</span>
-                <span className="font-bold">{myApp?.program.code || 'TDP-TES'}</span>
+                <span className="font-bold text-slate-900">{myApp?.program.code || 'TDP-TES'}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">STIPEND:</span>
-                <span className="font-bold text-emerald-600">₱{(myApp?.program.grantAmount || 7500).toLocaleString()}</span>
+              <div className="flex justify-between items-center pt-1 border-t border-slate-200">
+                <span className="text-slate-500">STIPEND AMOUNT:</span>
+                <span className="font-black text-sm text-emerald-700">₱{(myApp?.program.grantAmount || 7500).toLocaleString()}</span>
               </div>
             </div>
 
-            <p className="text-xs text-slate-500">
-              Pass reference: <code className="font-mono">SAC-SEC-2026-482910</code>
-            </p>
+            <div className="flex items-center justify-between text-xs pt-1">
+              <span className="text-slate-400 text-[11px] font-mono">
+                Ref: <strong className="text-slate-700">SAC-SEC-2026-482910</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center space-x-1 font-bold text-sac-maroon-800 hover:underline"
+              >
+                <span>Print Pass</span>
+                <ArrowRight className="h-3 w-3" />
+              </button>
+            </div>
           </div>
         </div>
       )}
