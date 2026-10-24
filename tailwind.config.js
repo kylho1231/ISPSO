@@ -11,28 +11,38 @@ module.exports = {
       colors: {
         sac: {
           maroon: {
-            50: '#fdf2f2',
-            100: '#fde8e8',
-            200: '#fbd5d5',
-            300: '#f8b4b4',
-            400: '#f05252',
-            500: '#c81e1e',
-            600: '#9b1c1c',
-            700: '#8b0000',
-            800: '#780000', // Primary SAC Maroon from User's UI
-            900: '#5c0000',
-            950: '#3d0000',
+            50: '#fdf4f4',
+            100: '#fbe7e7',
+            200: '#f7d3d4',
+            300: '#efb1b3',
+            400: '#e18285',
+            500: '#cc5256',
+            600: '#ab3337',
+            700: '#8c2428',
+            800: '#6b1113', // Official St. Anthony's College Deep Maroon
+            900: '#520b0d', // Official Institutional Masthead Maroon
+            950: '#380607',
           },
           gold: {
-            50: '#fffbeb',
-            100: '#fef3c7',
-            200: '#fde68a',
-            300: '#fcd34d',
-            400: '#fbbf24',
-            500: '#f59e0b', // Primary SAC Gold from User's UI
-            600: '#d97706',
-            700: '#b45309',
+            50: '#fefef8',
+            100: '#fdfbef',
+            200: '#faf4d5',
+            300: '#f5e9ae',
+            400: '#edd87a',
+            500: '#d4af37', // Official St. Anthony's College Seal Gold
+            600: '#b8860b', // Antique Gold Accent
+            700: '#946607',
+            800: '#754f0a',
+            900: '#5b3d0a',
           },
+        },
+        academic: {
+          paper: '#ffffff',
+          cream: '#faf8f5',
+          parchment: '#f4ede4',
+          border: '#e2e8f0',
+          text: '#0f172a',
+          muted: '#475569',
         },
         anthonian: {
           50: '#f0f5fa',

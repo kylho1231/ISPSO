@@ -53,30 +53,28 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-16 sac-hero-mesh relative overflow-hidden">
-      <div className="absolute inset-0 sac-grid-overlay opacity-50 pointer-events-none" />
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-16 bg-slate-50 relative overflow-hidden">
       <div className="relative w-full max-w-md">
         <div className="mb-6 text-center flex flex-col items-center">
           <div className="relative mb-3">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sac-maroon-800 to-sac-gold-500 blur-xl opacity-20 scale-125" />
-            <div className="relative rounded-full p-2 bg-white/90 backdrop-blur shadow-lg border border-white/80">
-              <SacSeal className="h-16 w-16 drop-shadow-md" size={64} />
+            <div className="rounded-full p-2 bg-white shadow-md border-2 border-sac-gold-400">
+              <SacSeal className="h-16 w-16 drop-shadow-sm" size={64} />
             </div>
           </div>
-          <span className="rounded-full bg-white/90 backdrop-blur px-3.5 py-1 text-xs font-black tracking-wider uppercase text-sac-maroon-900 border border-sac-maroon-200 shadow-sm">
-            St. Anthony’s College • ISPSO
+          <span className="rounded-full bg-white px-3.5 py-1 text-xs font-bold tracking-wider uppercase text-sac-maroon-900 border border-sac-maroon-200 shadow-sm">
+            St. Anthony’s College • ISPSO Workstation
           </span>
-          <h1 className="mt-2.5 font-serif text-3xl font-black text-slate-900">
+          <h1 className="mt-2.5 font-serif text-2xl sm:text-3xl font-extrabold text-slate-900">
             Administrative Console
           </h1>
-          <p className="mt-1.5 text-xs leading-relaxed text-slate-500 max-w-sm font-medium">
-            Desktop workstation for scholarship management, document verification, and stipend releasing at San Jose de Buenavista, Antique.
+          <p className="mt-1.5 text-xs leading-relaxed text-slate-500 max-w-sm font-normal">
+            Desktop workstation for scholarship management, document verification, and stipend releasing • San Jose de Buenavista, Antique.
           </p>
         </div>
 
         {/* Login Card */}
-        <div className="glass-card rounded-3xl p-6 sm:p-8 shadow-2xl border border-white/90">
-          <div className="mb-5 flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-200">
+          <div className="mb-5 flex items-center justify-between pb-3 border-b border-slate-200">
             <div>
               <h2 className="text-base font-bold text-slate-900">Staff Sign In</h2>
               <p className="text-xs text-slate-500 mt-0.5">

@@ -474,21 +474,21 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
             </div>
           )}
 
-          {/* AI VERIFICATION OVERLAY HUD */}
+          {/* INSTITUTIONAL VERIFICATION OVERLAY HUD */}
           {isVerifying && (
-            <div className="rounded-2xl bg-gradient-to-br from-sac-maroon-950 via-sac-maroon-900 to-slate-900 p-5 text-white shadow-xl border border-sac-gold-400/30 space-y-4 animate-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+            <div className="rounded-2xl bg-sac-maroon-900 p-5 text-white shadow-lg border-2 border-sac-gold-400/70 space-y-4 animate-in fade-in-50 duration-200">
+              <div className="flex items-center justify-between pb-3 border-b border-white/15">
                 <div className="flex items-center space-x-2.5">
-                  <div className="rounded-xl bg-sac-gold-400/20 p-2 border border-sac-gold-400/30">
-                    <Sparkles className="h-5 w-5 text-sac-gold-400 animate-spin" />
+                  <div className="rounded-xl bg-sac-gold-400/20 p-2 border border-sac-gold-400/40">
+                    <ShieldCheck className="h-5 w-5 text-sac-gold-300 animate-pulse" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-white">SAC AI Document Verification Engine</h4>
-                    <p className="text-[11px] text-sac-gold-300">Biometric Identity &amp; Anti-Fraud Forensic Check</p>
+                    <h4 className="text-sm font-serif font-black tracking-wide text-white">SAC Institutional Verification System</h4>
+                    <p className="text-[11px] text-sac-gold-200/90 font-medium">Authenticity Verification &amp; DepEd LRN Cross-Check</p>
                   </div>
                 </div>
-                <span className="rounded-full bg-sac-maroon-800 px-2.5 py-1 text-[10px] font-mono text-sac-gold-300 font-bold border border-sac-gold-400/20">
-                  REAL-TIME
+                <span className="rounded bg-sac-gold-400/20 px-2 py-0.5 text-[10px] font-mono text-sac-gold-300 font-bold border border-sac-gold-400/30 uppercase tracking-wider">
+                  AUTHENTICATING
                 </span>
               </div>
 
@@ -497,62 +497,62 @@ export const StudentAuthModal: React.FC<StudentAuthModalProps> = ({
                 <div
                   className={`flex items-center space-x-2.5 p-2 rounded-xl transition ${
                     verificationStage === 'forensics'
-                      ? 'bg-sac-gold-400/10 text-sac-gold-300 font-bold border border-sac-gold-400/30'
+                      ? 'bg-sac-gold-400/15 text-sac-gold-200 font-bold border border-sac-gold-400/40'
                       : verificationStage === 'ocr' || verificationStage === 'matching' || verificationStage === 'success'
-                      ? 'text-emerald-400 font-medium'
+                      ? 'text-emerald-300 font-medium'
                       : 'text-white/60'
                   }`}
                 >
                   {verificationStage === 'ocr' || verificationStage === 'matching' || verificationStage === 'success' ? (
                     <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                   ) : verificationStage === 'forensics' ? (
-                    <Scan className="h-4 w-4 text-sac-gold-400 animate-pulse" />
+                    <Scan className="h-4 w-4 text-sac-gold-300 animate-pulse" />
                   ) : (
                     <div className="h-4 w-4 rounded-full border border-white/30" />
                   )}
-                  <span>1. Forensic Authenticity Scan (Deepfake &amp; AI-Generation Check)</span>
+                  <span>1. Forensic Document Integrity (Synthetic &amp; AI-Generation Detection)</span>
                 </div>
 
                 <div
                   className={`flex items-center space-x-2.5 p-2 rounded-xl transition ${
                     verificationStage === 'ocr'
-                      ? 'bg-sac-gold-400/10 text-sac-gold-300 font-bold border border-sac-gold-400/30'
+                      ? 'bg-sac-gold-400/15 text-sac-gold-200 font-bold border border-sac-gold-400/40'
                       : verificationStage === 'matching' || verificationStage === 'success'
-                      ? 'text-emerald-400 font-medium'
+                      ? 'text-emerald-300 font-medium'
                       : 'text-white/60'
                   }`}
                 >
                   {verificationStage === 'matching' || verificationStage === 'success' ? (
                     <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                   ) : verificationStage === 'ocr' ? (
-                    <FileCheck className="h-4 w-4 text-sac-gold-400 animate-pulse" />
+                    <FileCheck className="h-4 w-4 text-sac-gold-300 animate-pulse" />
                   ) : (
                     <div className="h-4 w-4 rounded-full border border-white/30" />
                   )}
-                  <span>2. OCR Extraction: Reading SAC ID and Registration Form (RF)</span>
+                  <span>2. OCR Extraction: Scanning SAC ID and Registration Form (RF)</span>
                 </div>
 
                 <div
                   className={`flex items-center space-x-2.5 p-2 rounded-xl transition ${
                     verificationStage === 'matching'
-                      ? 'bg-sac-gold-400/10 text-sac-gold-300 font-bold border border-sac-gold-400/30'
+                      ? 'bg-sac-gold-400/15 text-sac-gold-200 font-bold border border-sac-gold-400/40'
                       : verificationStage === 'success'
-                      ? 'text-emerald-400 font-medium'
+                      ? 'text-emerald-300 font-medium'
                       : 'text-white/60'
                   }`}
                 >
                   {verificationStage === 'success' ? (
                     <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                   ) : verificationStage === 'matching' ? (
-                    <ShieldCheck className="h-4 w-4 text-sac-gold-400 animate-pulse" />
+                    <ShieldCheck className="h-4 w-4 text-sac-gold-300 animate-pulse" />
                   ) : (
                     <div className="h-4 w-4 rounded-full border border-white/30" />
                   )}
-                  <span>3. Biometric Cross-Match: Full Name &amp; 12-Digit DepEd LRN Matching</span>
+                  <span>3. Identity Cross-Matching: Full Name &amp; 12-Digit DepEd LRN Validation</span>
                 </div>
               </div>
 
-              <div className="bg-black/30 rounded-xl p-2.5 text-center text-[11px] font-mono text-sac-gold-300">
+              <div className="bg-black/25 rounded-xl p-2.5 text-center text-[11px] font-mono text-sac-gold-200 border border-white/10">
                 {verificationProgressText}
               </div>
             </div>

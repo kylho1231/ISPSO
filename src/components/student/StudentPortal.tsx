@@ -147,7 +147,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
   const content = (
     <div className="space-y-6">
-      {/* ELEVATED STUDENT PROFILE BANNER (GetLayers Standard) */}
+      {/* OFFICIAL SAC SCHOLAR PROFILE BANNER */}
       <section className="glass-card rounded-3xl p-6 relative overflow-hidden border border-slate-200/90 shadow-sm">
         <div className="absolute right-0 top-0 translate-x-10 -translate-y-6 opacity-5 pointer-events-none">
           <SacSeal size={200} />

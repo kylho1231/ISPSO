@@ -57,64 +57,40 @@
   background: #94a3b8;
 }
 
-/* GetLayers Design System Utilities */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+/* Professional Academic Institutional Design System (St. Anthony's College) */
+.academic-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  border-radius: 1rem;
+}
+
+.academic-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 10px 25px -5px rgba(120, 0, 0, 0.04), 0 8px 10px -6px rgba(120, 0, 0, 0.02);
-}
-
-.sac-hero-mesh {
-  background-color: #fafaf9;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(120, 0, 0, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.12) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(120, 0, 0, 0.03) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
-}
-
-.sac-grid-overlay {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(120, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(120, 0, 0, 0.03) 1px, transparent 1px);
-}
-
-.gold-gradient-border {
-  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 1rem;
-}
-.gold-gradient-border::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.6), rgba(120, 0, 0, 0.3), rgba(245, 158, 11, 0.2));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.7);
-  }
+.glass-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
 }
 
-.animate-pulse-glow {
-  animation: pulseGlow 3s infinite ease-in-out;
+.sac-academic-hero {
+  background-color: #faf8f5;
+  background-image: 
+    linear-gradient(to bottom, #ffffff 0%, #faf8f5 100%);
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sac-academic-pattern {
+  background-color: #ffffff;
+  background-image: radial-gradient(#e2e8f0 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
 }

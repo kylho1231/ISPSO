@@ -232,49 +232,45 @@ export default function StudentHomePage() {
             onSendStudentSms={handleSendStudentSms}
           />
         ) : (
-          /* Public Student Homepage with GetLayers Design Architecture */
-          <div className="space-y-16 pb-20">
-            {/* ATMOSPHERIC HERO SECTION */}
-            <section className="relative overflow-hidden sac-hero-mesh border-b border-sac-maroon-100/60 py-16 sm:py-24">
-              <div className="absolute inset-0 sac-grid-overlay pointer-events-none opacity-60" />
-
+          /* Official St. Anthony's College Academic Student Masthead & Catalog */
+          <div className="space-y-14 pb-20">
+            {/* INSTITUTIONAL MASTHEAD HERO SECTION */}
+            <section className="relative overflow-hidden sac-academic-hero border-b border-slate-200 py-12 sm:py-16">
               <div className="relative mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-                {/* Glowing Institution Seal */}
-                <div className="relative mx-auto flex justify-center mb-6">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-sac-maroon-800 to-sac-gold-500 blur-2xl opacity-25 scale-125 animate-pulse-glow" />
-                  <div className="relative rounded-full p-2.5 bg-white/90 backdrop-blur-md shadow-2xl border border-white/80 ring-4 ring-sac-gold-400/20">
-                    <SacSeal className="h-24 w-24 sm:h-28 sm:w-28 drop-shadow-md" size={112} />
+                {/* Official College Seal */}
+                <div className="relative mx-auto flex justify-center mb-5">
+                  <div className="relative rounded-full p-2 bg-white shadow-md border-2 border-sac-gold-400 ring-4 ring-sac-maroon-800/10">
+                    <SacSeal className="h-20 w-20 sm:h-24 sm:w-24 drop-shadow-sm" size={96} />
                   </div>
                 </div>
 
-                {/* Institutional Pill Badge */}
-                <div className="inline-flex items-center space-x-2 rounded-full bg-white/90 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-sac-maroon-900 border border-sac-maroon-200 shadow-sm mb-5">
-                  <span className="flex h-2 w-2 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span>St. Anthony’s College • ISPSO Centralized Scholar Portal</span>
+                {/* Institutional Identity Tag */}
+                <div className="inline-flex items-center space-x-2 rounded-full bg-white px-3.5 py-1 text-xs font-bold text-sac-maroon-900 border border-sac-maroon-200 shadow-sm mb-4">
+                  <span className="font-serif italic text-sac-gold-600 font-semibold">Religio Artibus</span>
+                  <span className="text-slate-300">•</span>
+                  <span>St. Anthony’s College • San Jose, Antique</span>
                 </div>
 
-                <h1 className="font-serif text-4xl font-black tracking-tight text-slate-900 sm:text-6xl max-w-4xl mx-auto leading-tight">
-                  Anthonian <span className="bg-gradient-to-r from-sac-maroon-900 via-sac-maroon-800 to-amber-700 bg-clip-text text-transparent">ScholarLink</span>
+                <h1 className="font-serif text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl max-w-4xl mx-auto leading-tight">
+                  Institutional Scholarship Program <br className="hidden sm:inline" />
+                  <span className="text-sac-maroon-800">&amp; Services Office (ISPSO)</span>
                 </h1>
 
-                <p className="mx-auto mt-5 max-w-2xl text-base text-slate-600 sm:text-lg leading-relaxed font-medium">
-                  The centralized digital scholarship ecosystem of St. Anthony’s College, San Jose de Buenavista, Antique. Real-time payout releasing schedules, online applications, instant mobile SMS updates, and AI scholarship matching.
+                <p className="mx-auto mt-4 max-w-2xl text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                  Official student scholarship and financial grant portal of St. Anthony&apos;s College. Access verified institutional aids, TES &amp; TDP-TES schedules, biometric DepEd LRN validation, and rapid gymnasium releasing notices.
                 </p>
 
                 {/* Primary Action Buttons */}
-                <div className="mt-8 flex flex-wrap items-center justify-center gap-3.5">
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
                   <button
                     onClick={() => {
                       setAuthMode('login');
                       setAuthModalOpen(true);
                     }}
-                    className="inline-flex items-center space-x-2 rounded-2xl bg-sac-maroon-800 px-6 py-3.5 text-sm font-bold text-sac-gold-400 shadow-lg shadow-sac-maroon-950/20 hover:bg-sac-maroon-900 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                    className="inline-flex items-center space-x-2 rounded-xl bg-sac-maroon-800 px-5 py-3 text-xs font-bold text-sac-gold-300 shadow-sm hover:bg-sac-maroon-900 hover:text-white transition duration-150"
                   >
-                    <span>Sign In (@sac.edu.ph)</span>
-                    <ArrowRight className="h-4 w-4 text-sac-gold-400" />
+                    <span>Student Sign In (@sac.edu.ph)</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-sac-gold-400" />
                   </button>
 
                   <button
@@ -282,51 +278,51 @@ export default function StudentHomePage() {
                       setAuthMode('register');
                       setAuthModalOpen(true);
                     }}
-                    className="inline-flex items-center space-x-2 rounded-2xl border border-slate-300 bg-white/90 backdrop-blur px-5 py-3.5 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 hover:shadow hover:-translate-y-0.5 transition-all duration-200"
+                    className="inline-flex items-center space-x-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50 transition duration-150"
                   >
-                    <span>Create Account</span>
+                    <span>Create Student Account</span>
                   </button>
 
                   <button
                     onClick={handleInstallPwa}
-                    className="inline-flex items-center space-x-2 rounded-2xl bg-gradient-to-r from-amber-50 to-amber-100/80 border border-amber-300 px-4 py-3.5 text-sm font-bold text-amber-950 shadow-sm hover:from-amber-100 hover:to-amber-200 hover:-translate-y-0.5 transition-all duration-200"
+                    className="inline-flex items-center space-x-2 rounded-xl bg-sac-gold-50 border border-sac-gold-300 px-4 py-3 text-xs font-bold text-sac-gold-900 shadow-sm hover:bg-sac-gold-100 transition duration-150"
                   >
-                    <Download className="h-4 w-4 text-sac-maroon-800" />
-                    <span>Install App on Phone</span>
+                    <Download className="h-3.5 w-3.5 text-sac-maroon-800" />
+                    <span>Install PWA on Phone</span>
                   </button>
                 </div>
 
-                {/* Demo Quick Bar */}
-                <div className="mt-6 flex items-center justify-center">
-                  <div className="inline-flex items-center space-x-2 rounded-full bg-white/90 backdrop-blur px-4 py-1.5 text-xs border border-sac-maroon-200 shadow-sm">
-                    <span className="font-bold text-sac-maroon-950">Demo Account:</span>
-                    <span className="text-slate-600 font-medium">Jhon Kylho Estrabo (BSIT 3)</span>
+                {/* Demo Quick Access Badge */}
+                <div className="mt-5 flex items-center justify-center">
+                  <div className="inline-flex items-center space-x-2 rounded-lg bg-white px-3.5 py-1.5 text-xs border border-slate-200 shadow-sm">
+                    <span className="font-bold text-sac-maroon-900">Official Evaluation Account:</span>
+                    <span className="text-slate-600">Jhon Kylho Estrabo (BSIT 3)</span>
                     <button
                       onClick={() => handleLoginSuccess(mockCurrentUser)}
-                      className="ml-2 font-bold text-sac-maroon-800 underline hover:text-sac-maroon-950"
+                      className="ml-2 font-bold text-sac-maroon-800 hover:underline"
                     >
-                      Instant Sign In &rarr;
+                      Instant Portal Access &rarr;
                     </button>
                   </div>
                 </div>
 
-                {/* FLOATING STAT METRICS GRID (GetLayers Cinematic Pattern) */}
-                <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4 max-w-4xl mx-auto">
-                  <div className="glass-card rounded-2xl p-4 text-center transition-all duration-200 hover:-translate-y-1 hover:border-amber-400/50">
-                    <div className="text-2xl sm:text-3xl font-black text-sac-maroon-900 tracking-tight">₱6.8M+</div>
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Subsidies Managed</p>
+                {/* ACADEMIC METRICS OVERVIEW */}
+                <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4 max-w-4xl mx-auto text-left">
+                  <div className="rounded-xl border border-slate-200 border-t-4 border-t-sac-maroon-800 bg-white p-4 shadow-sm">
+                    <div className="text-2xl font-black text-sac-maroon-900 font-serif">₱6.8M+</div>
+                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mt-0.5">Grants Disbursed</p>
                   </div>
-                  <div className="glass-card rounded-2xl p-4 text-center transition-all duration-200 hover:-translate-y-1 hover:border-amber-400/50">
-                    <div className="text-2xl sm:text-3xl font-black text-sac-maroon-900 tracking-tight">8 Schemes</div>
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">TES, TDP &amp; Grants</p>
+                  <div className="rounded-xl border border-slate-200 border-t-4 border-t-sac-gold-500 bg-white p-4 shadow-sm">
+                    <div className="text-2xl font-black text-slate-900 font-serif">8 Programs</div>
+                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mt-0.5">Active Scholarships</p>
                   </div>
-                  <div className="glass-card rounded-2xl p-4 text-center transition-all duration-200 hover:-translate-y-1 hover:border-amber-400/50">
-                    <div className="text-2xl sm:text-3xl font-black text-emerald-700 tracking-tight">100% Verified</div>
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">DepEd LRN Checking</p>
+                  <div className="rounded-xl border border-slate-200 border-t-4 border-t-emerald-600 bg-white p-4 shadow-sm">
+                    <div className="text-2xl font-black text-emerald-700 font-serif">100%</div>
+                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mt-0.5">DepEd LRN Verified</p>
                   </div>
-                  <div className="glass-card rounded-2xl p-4 text-center transition-all duration-200 hover:-translate-y-1 hover:border-amber-400/50">
-                    <div className="text-2xl sm:text-3xl font-black text-amber-700 tracking-tight">SAC Gym</div>
-                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mt-1">Counter QR Releasing</p>
+                  <div className="rounded-xl border border-slate-200 border-t-4 border-t-sac-maroon-700 bg-white p-4 shadow-sm">
+                    <div className="text-2xl font-black text-slate-900 font-serif">SAC Gym</div>
+                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mt-0.5">Scheduled Releasing</p>
                   </div>
                 </div>
               </div>
@@ -498,21 +494,15 @@ export default function StudentHomePage() {
         )}
       </main>
 
-      {/* Floating Schola AI Assistant Button */}
+      {/* ISPSO Scholar Guidance Desk Button */}
       <div className="fixed bottom-6 right-6 z-40">
         <button
           onClick={() => setIsScholaOpen(true)}
-          className="group flex items-center space-x-2.5 rounded-full bg-sac-maroon-800 py-3.5 px-5 text-xs font-bold text-sac-gold-400 shadow-2xl hover:bg-sac-maroon-900 hover:scale-105 transition-all duration-200 ring-4 ring-sac-gold-400/40"
-          title="Ask Schola AI Assistant"
+          className="group flex items-center space-x-2 rounded-full bg-sac-maroon-800 py-3 px-4.5 text-xs font-bold text-sac-gold-300 shadow-lg hover:bg-sac-maroon-900 border-2 border-sac-gold-400 transition"
+          title="Open ISPSO Scholar Guidance Desk"
         >
-          <div className="relative">
-            <Bot className="h-5 w-5 text-sac-gold-400" />
-            <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sac-gold-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-sac-gold-500"></span>
-            </span>
-          </div>
-          <span className="text-white font-black tracking-wide">Ask Schola AI</span>
+          <Bot className="h-4 w-4 text-sac-gold-400" />
+          <span className="text-white font-bold tracking-wide">Scholar Helpdesk</span>
         </button>
       </div>
 
