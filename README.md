@@ -1,6 +1,10 @@
 # St. Anthony’s College (SAC) - ISPSO ScholarLink
 ### Institutional Scholarship Program and Services Office • San Jose de Buenavista, Antique, Philippines
 
+[![Live Production](https://img.shields.io/badge/Live%20Portal-sac--ispso.vercel.app-780000?style=for-the-badge&logo=vercel)](https://sac-ispso.vercel.app)
+[![Admin Portal](https://img.shields.io/badge/Admin%20Console-Workstation-f59e0b?style=for-the-badge&logo=shield)](https://sac-ispso.vercel.app/admin)
+[![GitHub](https://img.shields.io/badge/GitHub-kylho1231%2FISPSO-181717?style=for-the-badge&logo=github)](https://github.com/kylho1231/ISPSO)
+
 A centralized, production-ready scholarship management and student communication portal for **St. Anthony’s College (SAC)**. Designed to replace uncoordinated Facebook announcements with direct, real-time updates, automated anti-fraud identity verification, digital QR stipend claiming at the SAC Gymnasium, and an intelligent student AI advisor (**Schola**).
 
 ---
@@ -112,12 +116,12 @@ The server will bind to `http://localhost:3000` (or `PORT` environment variable)
 
 ---
 
-## 👥 Demo Credentials
+## 👥 Access & Credentials
 
-| Role | Access URL | Credentials |
+| Role | Live Production URL | Credentials |
 | :--- | :--- | :--- |
-| **Student (Demo Scholar)** | `http://localhost:3000/` | Email: `jestrabo@sac.edu.ph`<br>Password: `student123`<br>*(Or click "Instant Sign In" on Homepage)* |
-| **ISPSO Staff / Admin** | `http://localhost:3000/admin` | Username: `admin`<br>Password: `admin123` |
+| **Student (PWA Portal)** | [https://sac-ispso.vercel.app](https://sac-ispso.vercel.app) | Email: `jestrabo@sac.edu.ph`<br>Password: `student123`<br>*(Or click "Instant Sign In" on Homepage)* |
+| **ISPSO Staff (Admin Console)** | [https://sac-ispso.vercel.app/admin](https://sac-ispso.vercel.app/admin) | Username: `admin`<br>Password: `admin123` |
 
 ---
 
