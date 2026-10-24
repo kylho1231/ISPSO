@@ -13,6 +13,9 @@ export interface StudentProfile {
   isProfileComplete: boolean;
   avatarUrl?: string;
   gwa?: number;
+  rfDocumentName?: string;
+  idDocumentName?: string;
+  isAiVerified?: boolean;
 }
 
 export type ProgramCategory = 'GOVERNMENT' | 'INSTITUTIONAL' | 'PRIVATE';

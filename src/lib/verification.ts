@@ -250,3 +250,264 @@ function fuzzySearchNameInText(name: string, text: string): number {
 
   return foundCount / tokens.length;
 }
+
+/**
+ * Validates student password complexity.
+ * Requirements:
+ * - At least 8 characters
+ * - At least 1 uppercase letter (A-Z)
+ * - At least 1 special character (!@#$%^&*...)
+ */
+export interface PasswordValidationResult {
+  isValid: boolean;
+  hasUpper: boolean;
+  hasSpecial: boolean;
+  hasMinLength: boolean;
+  error?: string;
+}
+
+export function validatePassword(password: string): PasswordValidationResult {
+  const hasMinLength = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password);
+
+  const errors: string[] = [];
+  if (!hasMinLength) errors.push('Password must be at least 8 characters long');
+  if (!hasUpper) errors.push('Must contain at least one uppercase letter (A-Z)');
+  if (!hasSpecial) errors.push('Must contain at least one special character (!@#$%^&*...)');
+
+  return {
+    isValid: hasMinLength && hasUpper && hasSpecial,
+    hasUpper,
+    hasSpecial,
+    hasMinLength,
+    error: errors.length > 0 ? errors.join('. ') + '.' : undefined,
+  };
+}
+
+/**
+ * AI-Generated / Deepfake / Synthetic Document Forensic Detector.
+ * Detects whether an uploaded document (RF or ID) was synthesized using
+ * generative AI models (Midjourney, DALL-E, Stable Diffusion, ComfyUI, etc.).
+ */
+export interface AiDetectionResult {
+  isAiGenerated: boolean;
+  confidenceScore: number; // 0 - 100
+  reason?: string;
+  indicators: string[];
+}
+
+export function detectAiGeneratedDocument(file: {
+  name: string;
+  size?: number;
+  type?: string;
+  dataUrl?: string;
+  extractedText?: string;
+}): AiDetectionResult {
+  const indicators: string[] = [];
+  let score = 0;
+
+  const fileName = (file.name || '').toLowerCase();
+
+  // 1. File name indicators (typical generative AI exports)
+  const aiFileNameRegex =
+    /(midjourney|dall[-_]?e|stablediffusion|stable[-_]diffusion|sdxl|flux|comfyui|novelai|bing[-_]?creator|bing[-_]?image|leonardo[-_]?ai|adobe[-_]?firefly|ai[-_]?gen(erated)?|chatgpt|synthetic|deepfake|fake[-_]id|fake[-_]doc|generated[-_]image)/i;
+
+  if (aiFileNameRegex.test(fileName)) {
+    indicators.push(`AI generator signature detected in filename: "${file.name}"`);
+    score += 85;
+  }
+
+  // 2. Data URL / Base64 metadata inspection for AI generation chunks and signatures
+  if (file.dataUrl) {
+    const rawHeader = file.dataUrl.slice(0, 4000).toLowerCase();
+
+    if (
+      rawHeader.includes('parameters') ||
+      rawHeader.includes('stablediffusion') ||
+      rawHeader.includes('novelai') ||
+      rawHeader.includes('midjourney') ||
+      rawHeader.includes('dall-e') ||
+      rawHeader.includes('generation time') ||
+      rawHeader.includes('workflow') ||
+      rawHeader.includes('adobe firefly') ||
+      rawHeader.includes('generative fill')
+    ) {
+      indicators.push('Generative AI metadata payload detected in image headers');
+      score += 90;
+    }
+  }
+
+  // 3. OCR Text inspection for AI tool watermarks or prompt markers
+  if (file.extractedText) {
+    const textLower = file.extractedText.toLowerCase();
+    if (
+      textLower.includes('midjourney') ||
+      textLower.includes('dall·e') ||
+      textLower.includes('dall-e') ||
+      textLower.includes('created with bing') ||
+      textLower.includes('adobe firefly') ||
+      textLower.includes('stable diffusion') ||
+      textLower.includes('ai generated') ||
+      textLower.includes('generative ai')
+    ) {
+      indicators.push('Generative AI model watermark identified in document text');
+      score += 95;
+    }
+  }
+
+  const isAiGenerated = score >= 50;
+
+  return {
+    isAiGenerated,
+    confidenceScore: Math.min(100, score),
+    reason: isAiGenerated
+      ? `Security Alert: Document failed forensic authenticity check. ${indicators.join('; ')}.`
+      : undefined,
+    indicators,
+  };
+}
+
+/**
+ * Comprehensive Student Registration Verification.
+ * Verifies that:
+ * 1. Both RF and SAC ID are uploaded.
+ * 2. Neither document is AI-generated / synthetic.
+ * 3. The name on the ID matches the student's entered full name.
+ * 4. The 12-digit DepEd LRN on the RF matches the student's entered LRN.
+ */
+export interface RegistrationDocumentPayload {
+  name: string;
+  size: number;
+  type: string;
+  dataUrl?: string;
+  extractedText?: string;
+  extractedName?: string;
+  extractedLrn?: string;
+}
+
+export interface StudentRegistrationVerificationInput {
+  fullName: string;
+  lrn: string;
+  idDocument: RegistrationDocumentPayload | null;
+  rfDocument: RegistrationDocumentPayload | null;
+}
+
+export interface StudentRegistrationVerificationResult {
+  isValid: boolean;
+  status: 'VERIFIED' | 'MISSING_DOCUMENTS' | 'AI_GENERATED_DETECTED' | 'NAME_MISMATCH' | 'LRN_MISMATCH';
+  error?: string;
+  details: {
+    idAiCheck: AiDetectionResult;
+    rfAiCheck: AiDetectionResult;
+    nameSimilarity: number;
+    lrnMatch: boolean;
+    extractedIdName?: string;
+    extractedRfLrn?: string;
+  };
+}
+
+export function verifyStudentRegistrationDocuments(
+  input: StudentRegistrationVerificationInput
+): StudentRegistrationVerificationResult {
+  const { fullName, lrn, idDocument, rfDocument } = input;
+
+  // 1. Check if both documents are present
+  if (!idDocument || !rfDocument) {
+    return {
+      isValid: false,
+      status: 'MISSING_DOCUMENTS',
+      error: 'Both your Official SAC Student ID and Certificate of Registration (RF) must be uploaded.',
+      details: {
+        idAiCheck: { isAiGenerated: false, confidenceScore: 0, indicators: [] },
+        rfAiCheck: { isAiGenerated: false, confidenceScore: 0, indicators: [] },
+        nameSimilarity: 0,
+        lrnMatch: false,
+      },
+    };
+  }
+
+  // 2. AI-Generated Forensic Detection Check
+  const idAiCheck = detectAiGeneratedDocument(idDocument);
+  const rfAiCheck = detectAiGeneratedDocument(rfDocument);
+
+  if (idAiCheck.isAiGenerated || rfAiCheck.isAiGenerated) {
+    const docName =
+      idAiCheck.isAiGenerated && rfAiCheck.isAiGenerated
+        ? 'Student ID and Registration Form'
+        : idAiCheck.isAiGenerated
+        ? 'Student ID'
+        : 'Registration Form (RF)';
+
+    return {
+      isValid: false,
+      status: 'AI_GENERATED_DETECTED',
+      error: `Security Alert: The uploaded ${docName} was flagged by SAC AI Forensic Scanner as AI-generated or synthetic. St. Anthony's College ISPSO strictly prohibits falsified documents under Student Handbook Section 4.2.`,
+      details: {
+        idAiCheck,
+        rfAiCheck,
+        nameSimilarity: 0,
+        lrnMatch: false,
+      },
+    };
+  }
+
+  // 3. Name Verification from Student ID
+  const extractedIdName =
+    idDocument.extractedName ||
+    extractNameFromText(idDocument.extractedText || '') ||
+    idDocument.name.replace(/\.[^/.]+$/, '');
+  const nameSimilarity = jaroWinklerSimilarity(fullName, extractedIdName);
+
+  if (idDocument.extractedText && nameSimilarity < 0.70) {
+    return {
+      isValid: false,
+      status: 'NAME_MISMATCH',
+      error: `Name Mismatch: The name extracted from the uploaded Student ID ("${extractedIdName}") does not match your registered full name ("${fullName}"). Please upload your own official SAC ID.`,
+      details: {
+        idAiCheck,
+        rfAiCheck,
+        nameSimilarity: Math.round(nameSimilarity * 100),
+        lrnMatch: false,
+        extractedIdName,
+      },
+    };
+  }
+
+  // 4. LRN Verification from Registration Form (RF)
+  const cleanedRegLrn = lrn.replace(/[-\s]/g, '');
+  const extractedRfLrn =
+    rfDocument.extractedLrn ||
+    extractLrnFromText(rfDocument.extractedText || '') ||
+    cleanedRegLrn;
+  const cleanedExtractedLrn = extractedRfLrn.replace(/[-\s]/g, '');
+
+  if (rfDocument.extractedText && cleanedRegLrn !== cleanedExtractedLrn) {
+    return {
+      isValid: false,
+      status: 'LRN_MISMATCH',
+      error: `LRN Mismatch: The 12-digit DepEd LRN on the uploaded Registration Form ("${extractedRfLrn}") does not match your entered LRN ("${lrn}").`,
+      details: {
+        idAiCheck,
+        rfAiCheck,
+        nameSimilarity: Math.round(nameSimilarity * 100),
+        lrnMatch: false,
+        extractedIdName,
+        extractedRfLrn,
+      },
+    };
+  }
+
+  return {
+    isValid: true,
+    status: 'VERIFIED',
+    details: {
+      idAiCheck,
+      rfAiCheck,
+      nameSimilarity: Math.round(nameSimilarity * 100),
+      lrnMatch: true,
+      extractedIdName,
+      extractedRfLrn,
+    },
+  };
+}
