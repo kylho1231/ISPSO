@@ -2017,7 +2017,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </span>
                         {ann.facebookSynced && (
                           <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue-600 border border-blue-200">
-                            FB Synced ✓
+                            FB Synced
                           </span>
                         )}
                       </div>
@@ -2605,7 +2605,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
                   <span>File: {docPreviewModal.fileName}</span>
-                  <span className="font-mono text-emerald-600 font-bold">DIGITAL_SEAL_VERIFIED ✓</span>
+                  <span className="font-mono text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    DIGITAL_SEAL_VERIFIED
+                  </span>
                 </div>
               </div>
             </div>

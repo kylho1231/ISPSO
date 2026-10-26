@@ -33,7 +33,7 @@ export function generateScholaResponse(userQuery: string, context: ScholaContext
       text: `Hello, **${student.fullName}**! Here is your official student profile registered with St. Anthony's College ISPSO:
 
 • **Student ID Number:** \`${student.studentIdNumber}\`
-• **DepEd 12-Digit LRN:** \`${student.lrn}\` *(Status: Verified ✓)*
+• **DepEd 12-Digit LRN:** \`${student.lrn}\` *(Status: Verified)*
 • **Institutional Email:** \`${student.email}\`
 • **Degree Program:** ${student.course} (Year ${student.yearLevel})
 • **Mobile Contact:** ${student.contactNumber}
@@ -73,27 +73,27 @@ Your profile is officially linked to your \`@sac.edu.ph\` account and compliant 
       sender: 'schola',
       text: `Here are the official **Scholarship & Financial Aid Programs** currently available at **St. Anthony’s College (SAC)** for Academic Year 2026-2027:
 
-1. 🏛️ **UniFAST Tertiary Education Subsidy (TES / RA 10931)**
+1. **UniFAST Tertiary Education Subsidy (TES / RA 10931)**
    • Grant: **₱20,000 / semester**
    • For: Underprivileged students, Listahanan 2.0 / 4Ps beneficiaries enrolled at SAC.
 
-2. 📘 **Tulong Dunong Program (TDP-TES)**
+2. **Tulong Dunong Program (TDP-TES)**
    • Grant: **₱7,500 / semester**
    • For: Deserving Anthonians with GWA of 2.25 or better and low family income.
 
-3. 💼 **College-Assisted Students (CAS / Working Scholars)**
+3. **College-Assisted Students (CAS / Working Scholars)**
    • Grant: **100% Full Tuition & Miscellaneous Coverage**
    • For: Students rendering 4 hours daily of campus office service (Registrar, Library, Labs, Guidance, ISPSO).
 
-4. 🏅 **Dean's List Academic Honor Scholarship**
+4. **Dean's List Academic Honor Scholarship**
    • Grant: **₱6,000 (100% or 50% tuition discount)**
    • For: Top academic achievers with GWA between 1.00 and 1.75.
 
-5. 🌾 **Antique Provincial Educational Assistance Program (APESP)**
+5. **Antique Provincial Educational Assistance Program (APESP)**
    • Grant: **₱5,000 / semester**
    • For: Bonafide Antiqueno residents across all 18 municipalities of Antique.
 
-6. 🕊️ **Youth Servant Leadership (YSLEP - Caritas Manila)**
+6. **Youth Servant Leadership (YSLEP - Caritas Manila)**
    • Grant: **₱12,000 / semester + Monthly Allowance**
    • For: Active Catholic parish youth within the Diocese of San Jose de Antique.
 
@@ -127,18 +127,18 @@ Would you like to know which ones you are specifically qualified for based on yo
 • **Your Recorded GWA:** **${studentGwa}** (Outstanding Academic Standing)
 • **Current Year & Course:** ${student.course}, Year ${student.yearLevel}
 
-Here are the scholarships you are qualified to apply for:
+• **Eligible Programs:**
 
-✅ **1. Dean's List Honor Scholarship (100% Tuition Discount)**
+1. **Dean's List Honor Scholarship (100% Tuition Discount)**
    • *Why:* Your GWA of ${studentGwa} places you in the top tier (1.00 - 1.45), entitling you to a full 100% tuition discount!
    
-✅ **2. Tulong Dunong Program (TDP-TES - ₱7,500)**
+2. **Tulong Dunong Program (TDP-TES - ₱7,500)**
    • *Status:* You are **already enrolled and approved** for this program this semester! Payout is scheduled for release.
 
-✅ **3. College-Assisted Students (CAS / Working Scholar)**
+3. **College-Assisted Students (CAS / Working Scholar)**
    • *Why:* CAS requires a GWA of 2.0 or better. With your ${studentGwa}, you comfortably meet academic requirements for campus placement.
 
-✅ **4. APESP (Antique Provincial Educational Assistance - ₱5,000)**
+4. **APESP (Antique Provincial Educational Assistance - ₱5,000)**
    • *Why:* You reside in ${student.municipality}, qualifying you for provincial educational assistance as a bonafide Antiqueno.
 
 Would you like me to guide you on how to apply for the Dean's List discount or check your TDP-TES payout schedule?`,
@@ -166,7 +166,7 @@ Would you like me to guide you on how to apply for the Dean's List discount or c
       return {
         id: `schola-${Date.now()}`,
         sender: 'schola',
-        text: `📢 **Good news, ${student.fullName}! Your payout schedule is officially confirmed:**
+        text: `**Official Notice: Payout Schedule Confirmed for ${student.fullName}**
 
 • **Program:** ${myApp?.program.name} (${myApp?.program.code})
 • **Amount to Receive:** **₱${myBatch.amountPerStudent.toLocaleString()}**
@@ -174,7 +174,7 @@ Would you like me to guide you on how to apply for the Dean's List discount or c
 • **Your Assigned Timeslot:** **${myBatch.startTime} – ${myBatch.endTime}** (${myBatch.batchNumber})
 • **Venue:** **${myBatch.venue}** at St. Anthony’s College Campus
 
-⚠️ **Important Releasing Reminders:**
+**Important Releasing Guidelines:**
 1. Present your **Validated SAC Student ID** (showing 1st Sem 2026-2027 validation sticker).
 2. Bring your official Certificate of Registration (COR).
 3. Strictly **No Authorization Letters** allowed unless accompanied by an official medical certificate.
@@ -215,15 +215,15 @@ The ISPSO is preparing the next batch releasing calendar. You will receive an in
       sender: 'schola',
       text: `Applying for scholarships at St. Anthony’s College through the **ScholarLink Portal** is simple and paperless:
 
-### 📋 4 Easy Application Steps:
-1. **Choose a Scholarship:** Tap the **"Apply"** tab in your ScholarLink PWA to view open programs.
+### Institutional Application Procedure (4 Steps):
+1. **Choose a Scholarship:** Open the **"Apply"** tab in your ScholarLink portal to view active programs.
 2. **Fill Academic Info:** Enter your General Weighted Average (GWA) and annual family gross income.
 3. **Upload Requirements:**
    • Validated SAC Student ID (front and back)
    • Certificate of Registration (COR - Officially validated by Registrar)
    • 12-Digit DepEd LRN Certificate / Form 137
    • Barangay Certificate of Indigency (for financial aid grants)
-4. **Automated Verification:** Our AI Verification API will immediately inspect your uploaded document to confirm your name and 12-digit LRN match your \`@sac.edu.ph\` account.
+4. **Automated Verification:** The system will inspect your uploaded document to confirm your name and 12-digit LRN match your \`@sac.edu.ph\` account.
 
 Once approved, you'll be assigned a timeslot for campus releasing at the SAC Gym!`,
       timestamp,
@@ -248,13 +248,13 @@ Once approved, you'll be assigned a timeslot for campus releasing at the SAC Gym
     return {
       id: `schola-${Date.now()}`,
       sender: 'schola',
-      text: `Here are the official contact details for the **Institutional Scholarship Program and Services Office (ISPSO)** at St. Anthony’s College:
+      text: `Official Directory — **Institutional Scholarship Program and Services Office (ISPSO)**, St. Anthony’s College:
 
-• 🏢 **Office Location:** Ground Floor, Administration Building, St. Anthony’s College, San Jose de Buenavista, 5700 Antique
-• 📞 **Direct Mobile Hotline:** \`0906-451-6128\`
-• 📧 **Official Email:** \`ispeso@sac.edu.ph\` / \`ispso@sac.edu.ph\`
-• ⏰ **Office Service Hours:** Monday to Friday, 8:00 AM – 12:00 PM & 1:00 PM – 5:00 PM
-• 👤 **Head of Office:** Mrs. Ma. Theresa Alingalan
+• **Office Location:** Ground Floor, Administration Building, St. Anthony’s College, San Jose de Buenavista, 5700 Antique
+• **Direct Mobile Hotline:** \`0906-451-6128\`
+• **Official Email:** \`ispeso@sac.edu.ph\` / \`ispso@sac.edu.ph\`
+• **Office Service Hours:** Monday to Friday, 8:00 AM – 12:00 PM & 1:00 PM – 5:00 PM
+• **Head of Office:** Mrs. Ma. Theresa Alingalan
 
 ISPSO staff can also send direct SMS text notifications to your mobile phone (\`${student.contactNumber}\`) for any urgent notices!`,
       timestamp,

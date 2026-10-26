@@ -266,7 +266,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
                 </div>
                 <div className="text-right">
                   <span className={`inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-black border ${myApp.status === 'APPROVED' ? 'border-emerald-300 bg-emerald-50 text-emerald-800' : 'border-amber-300 bg-amber-50 text-amber-900'}`}>
-                    {myApp.status === 'APPROVED' ? '● Active Approved Grant' : myApp.status === 'DEFICIENT' ? '▲ Action Required' : myApp.status === 'REJECTED' ? '✕ Disqualified' : '◌ Under Review'}
+                    {myApp.status === 'APPROVED' ? 'Active Approved Grant' : myApp.status === 'DEFICIENT' ? 'Action Required' : myApp.status === 'REJECTED' ? 'Disqualified' : 'Under Review'}
                   </span>
                   <div className="mt-2 text-2xl font-black text-slate-900">
                     ₱{(myApp?.program.grantAmount || 7500).toLocaleString()}

@@ -102,7 +102,7 @@ export const AdminCopilotModal: React.FC<AdminCopilotModalProps> = ({
       } else if (q.includes('review') || q.includes('discrepanc') || q.includes('fraud') || q.includes('flag')) {
         const flagged = applications.filter((a) => a.verification.issues && a.verification.issues.length > 0);
         if (flagged.length === 0) {
-          reply = `✅ All clear! There are currently no applications flagged with document discrepancies or fraud alerts.`;
+          reply = `**Status: All Clear.** There are currently no applications flagged with document discrepancies or fraud alerts.`;
         } else {
           const list = flagged
             .slice(0, 5)
@@ -111,7 +111,7 @@ export const AdminCopilotModal: React.FC<AdminCopilotModalProps> = ({
                 `${idx + 1}. **${a.student.fullName} (${a.verification.status}):**\n   ${a.verification.issues[0]}`
             )
             .join('\n\n');
-          reply = `⚠️ **${flagged.length} Application(s) require your attention:**\n\n${list}`;
+          reply = `**Action Required: ${flagged.length} Application(s) flagged for review:**\n\n${list}`;
         }
       } else if (q.includes('dean') || q.includes('top') || q.includes('honor') || q.includes('academic')) {
         const honorStudents = applications
@@ -127,11 +127,11 @@ export const AdminCopilotModal: React.FC<AdminCopilotModalProps> = ({
                 `${idx + 1}. **${a.student.fullName}** (${a.student.course}) — **GWA ${a.gwa.toFixed(2)}** (Rank #${idx + 1})`
             )
             .join('\n');
-          reply = `🏅 **Top Academic Achievers from Application Pool:**\n\n${list}`;
+          reply = `**Top Academic Achievers from Application Pool:**\n\n${list}`;
         }
       } else if (q.includes('payout') || q.includes('gym') || q.includes('release') || q.includes('schedule')) {
         const nextBatch = payoutBatches[0];
-        reply = `📢 **Upcoming Campus Payout Summary:**\n\n• **Program:** ${nextBatch?.programCode || 'TDP-TES'} (${nextBatch?.batchNumber || 'Batch 1'})\n• **Date & Time:** ${nextBatch?.scheduledDate || 'November 25, 2026'} • ${nextBatch?.startTime || '09:00 AM'} – ${nextBatch?.endTime || '12:00 PM'}\n• **Location:** ${nextBatch?.venue || 'SAC Gymnasium'}\n• **Beneficiaries:** ${nextBatch?.totalBeneficiaries || 0} students scheduled\n• **Cashier Preparation:** Cashiers verify student identity using validated SAC Student IDs.`;
+        reply = `**Upcoming Campus Payout Summary:**\n\n• **Program:** ${nextBatch?.programCode || 'TDP-TES'} (${nextBatch?.batchNumber || 'Batch 1'})\n• **Date & Time:** ${nextBatch?.scheduledDate || 'November 25, 2026'} • ${nextBatch?.startTime || '09:00 AM'} – ${nextBatch?.endTime || '12:00 PM'}\n• **Location:** ${nextBatch?.venue || 'SAC Gymnasium'}\n• **Beneficiaries:** ${nextBatch?.totalBeneficiaries || 0} students scheduled\n• **Cashier Preparation:** Cashiers verify student identity using validated SAC Student IDs.`;
       } else {
         reply = `I can help you audit applicants, check grade eligibility, or prepare releasing schedules. You can ask me:\n• *"Who applied today?"*\n• *"Which applications have document issues?"*\n• *"Who is on the Dean's List?"*\n• *"When is the next payout at SAC Gym?"*`;
       }
